@@ -1,5 +1,8 @@
 package com.ratelimiter.adaptive_rate_limiter.model;
 
-public class HealthState {
-    
+public enum HealthState {
+    HEALTHY,
+    WARNING,
+    DEGRADED,
+    RECOVERY
 }
