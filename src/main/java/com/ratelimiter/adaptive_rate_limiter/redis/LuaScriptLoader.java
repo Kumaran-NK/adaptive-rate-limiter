@@ -15,7 +15,9 @@ public class LuaScriptLoader {
 
     private static final Logger log = LoggerFactory.getLogger(LuaScriptLoader.class);
 
+    @SuppressWarnings("rawtypes")
     private final DefaultRedisScript<List> slidingWindowScript;
+    @SuppressWarnings("rawtypes")
     private final DefaultRedisScript<List> tokenBucketScript;
 
     public LuaScriptLoader() {
@@ -24,6 +26,7 @@ public class LuaScriptLoader {
         log.info("Lua scripts loaded successfully");
     }
 
+    @SuppressWarnings("rawtypes")
     private DefaultRedisScript<List> loadScript(String path) {
         try {
             ClassPathResource resource = new ClassPathResource(path);
