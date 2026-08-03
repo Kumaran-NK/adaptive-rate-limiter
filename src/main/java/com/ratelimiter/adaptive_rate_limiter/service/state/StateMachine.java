@@ -1,16 +1,18 @@
 package com.ratelimiter.adaptive_rate_limiter.service.state;
 
-import com.ratelimiter.adaptive_rate_limiter.config.RateLimiterProperties;
-import com.ratelimiter.adaptive_rate_limiter.model.HealthCheckEvent;
-import com.ratelimiter.adaptive_rate_limiter.model.HealthState;
-import com.ratelimiter.adaptive_rate_limiter.model.StateTransition;
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import java.time.Instant;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.concurrent.atomic.AtomicReference;
+import com.ratelimiter.adaptive_rate_limiter.config.RateLimiterProperties;
+import com.ratelimiter.adaptive_rate_limiter.model.HealthCheckEvent;
+import com.ratelimiter.adaptive_rate_limiter.model.HealthState;
+import com.ratelimiter.adaptive_rate_limiter.model.StateTransition;
+
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 
 @Service
 public class StateMachine {
@@ -82,11 +84,21 @@ public class StateMachine {
     }
 
     private HealthState evaluateFromDegraded(HealthCheckEvent event) {
-        // Circuit breaker testing if Redis is back
-        if (circuitBreaker.getState() == CircuitBreaker.State.HALF_OPEN
-                || circuitBreaker.getState() == CircuitBreaker.State.CLOSED) {
-            if (event.p99LatencyMs() < properties.getHysteresis().getEnterHealthyLatencyMs()
-                    && stableForSeconds(properties.getHysteresis().getDegradedStabilizationSeconds())) {
+        // If Redis is reachable and stable, transition to recovery.
+        if (isHealthyEnoughForRecovery(event)) {
+            // Check if circuit breaker is allowing calls (CLOSED or HALF_OPEN)
+            if (circuitBreaker.getState() == CircuitBreaker.State.HALF_OPEN
+                    || circuitBreaker.getState() == CircuitBreaker.State.CLOSED) {
+                if (stableForSeconds(properties.getHysteresis().getDegradedStabilizationSeconds())) {
+                    return HealthState.RECOVERY;
+                }
+            }
+
+            // Even if circuit is OPEN, if Redis has been healthy for a while,
+            // force transition to RECOVERY (the probe calls will eventually close the circuit)
+            if (circuitBreaker.getState() == CircuitBreaker.State.OPEN
+                    && stableForSeconds(properties.getHysteresis().getDegradedStabilizationSeconds() + 60)) {
+                log.info("Redis healthy for extended period, forcing recovery despite circuit state");
                 return HealthState.RECOVERY;
             }
         }
@@ -95,7 +107,7 @@ public class StateMachine {
 
     private HealthState evaluateFromRecovery(HealthCheckEvent event) {
         // Fully healthy
-        if (event.p99LatencyMs() < properties.getHysteresis().getEnterHealthyLatencyMs()
+        if (isHealthyEnoughForRecovery(event)
                 && stableForSeconds(properties.getHysteresis().getRecoveryStabilizationSeconds())) {
             return HealthState.HEALTHY;
         }
@@ -106,6 +118,16 @@ public class StateMachine {
             return HealthState.WARNING;
         }
         return HealthState.RECOVERY;
+    }
+
+    private boolean isHealthyEnoughForRecovery(HealthCheckEvent event) {
+        double recoveryThresholdMs = Math.max(
+                properties.getHysteresis().getEnterHealthyLatencyMs(),
+                properties.getHysteresis().getExitWarningLatencyMs()
+        );
+        return event.redisReachable()
+                && event.p99LatencyMs() <= recoveryThresholdMs
+                && event.errorRate() <= 0.01;
     }
 
     private boolean stableForSeconds(int seconds) {
