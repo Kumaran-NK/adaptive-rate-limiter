@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import static org.mockito.Mockito.when;
 
 import com.ratelimiter.adaptive_rate_limiter.config.RateLimiterProperties;
+import com.ratelimiter.adaptive_rate_limiter.metrics.HealthStateMetrics;
 import com.ratelimiter.adaptive_rate_limiter.model.HealthCheckEvent;
 import com.ratelimiter.adaptive_rate_limiter.model.HealthState;
 
@@ -29,7 +30,9 @@ class StateMachineRecoveryTest {
         properties.getHysteresis().setDegradedStabilizationSeconds(0);
         properties.getHysteresis().setRecoveryStabilizationSeconds(0);
 
-        StateMachine stateMachine = new StateMachine(circuitBreaker, properties);
+        HealthStateMetrics healthStateMetrics = Mockito.mock(HealthStateMetrics.class);
+
+        StateMachine stateMachine = new StateMachine(circuitBreaker, properties, healthStateMetrics);
 
         HealthCheckEvent degradedEvent = new HealthCheckEvent(
                 5.0,
@@ -70,10 +73,13 @@ class StateMachineRecoveryTest {
         properties.getHysteresis().setExitWarningLatencyMs(20.0);
         properties.getHysteresis().setRecoveryStabilizationSeconds(0);
 
-        StateMachine stateMachine = new StateMachine(circuitBreaker, properties);
+        HealthStateMetrics healthStateMetrics = Mockito.mock(HealthStateMetrics.class);
+
+        StateMachine stateMachine = new StateMachine(circuitBreaker, properties, healthStateMetrics);
 
         Field currentStateField = StateMachine.class.getDeclaredField("currentState");
         currentStateField.setAccessible(true);
+        @SuppressWarnings("unchecked")
         AtomicReference<HealthState> currentState = (AtomicReference<HealthState>) currentStateField.get(stateMachine);
         currentState.set(HealthState.RECOVERY);
 

@@ -1,20 +1,24 @@
 package com.ratelimiter.adaptive_rate_limiter.service;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.ratelimiter.adaptive_rate_limiter.cache.LocalRateLimitCache;
 import com.ratelimiter.adaptive_rate_limiter.config.RateLimiterProperties;
+import com.ratelimiter.adaptive_rate_limiter.metrics.RateLimiterMetrics;
 import com.ratelimiter.adaptive_rate_limiter.model.DegradationMode;
 import com.ratelimiter.adaptive_rate_limiter.model.HealthState;
 import com.ratelimiter.adaptive_rate_limiter.model.RateLimitDecision;
 import com.ratelimiter.adaptive_rate_limiter.service.state.StateMachine;
 import com.ratelimiter.adaptive_rate_limiter.service.strategy.SlidingWindowStrategy;
 import com.ratelimiter.adaptive_rate_limiter.service.strategy.TokenBucketStrategy;
+
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.function.Supplier;
 
 @Service
 public class RateLimiterService {
@@ -28,9 +32,10 @@ public class RateLimiterService {
     private final RateLimiterProperties properties;
     private final PodDiscoveryService podDiscoveryService;
     private final CircuitBreaker circuitBreaker;
+    private final RateLimiterMetrics rateLimiterMetrics;
 
-    private int warningCallCounter = 0;
-    private int degradedProbeCounter = 0;
+    private final AtomicInteger warningCallCounter = new AtomicInteger();
+    private final AtomicInteger degradedProbeCounter = new AtomicInteger();
 
     public RateLimiterService(StateMachine stateMachine,
                                SlidingWindowStrategy slidingWindowStrategy,
@@ -38,7 +43,8 @@ public class RateLimiterService {
                                LocalRateLimitCache localCache,
                                RateLimiterProperties properties,
                                PodDiscoveryService podDiscoveryService,
-                               CircuitBreakerRegistry circuitBreakerRegistry) {
+                               CircuitBreakerRegistry circuitBreakerRegistry,
+                               RateLimiterMetrics rateLimiterMetrics) {
         this.stateMachine = stateMachine;
         this.slidingWindowStrategy = slidingWindowStrategy;
         this.tokenBucketStrategy = tokenBucketStrategy;
@@ -46,17 +52,25 @@ public class RateLimiterService {
         this.properties = properties;
         this.podDiscoveryService = podDiscoveryService;
         this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("redis");
+        this.rateLimiterMetrics = rateLimiterMetrics;
     }
 
     public RateLimitDecision isAllowed(String key, String endpoint) {
         HealthState state = stateMachine.getCurrentState();
 
-        return switch (state) {
+        RateLimitDecision decision = switch (state) {
             case HEALTHY -> checkWithCircuitBreaker(key, endpoint);
             case WARNING -> checkWarning(key, endpoint);
             case DEGRADED -> checkDegraded(key, endpoint);
             case RECOVERY -> checkRecovery(key, endpoint);
         };
+
+        if (decision.allowed()) {
+            rateLimiterMetrics.recordAllowed();
+        } else {
+            rateLimiterMetrics.recordDenied();
+        }
+        return decision;
     }
 
     private RateLimitDecision checkWithCircuitBreaker(String key, String endpoint) {
@@ -64,7 +78,11 @@ public class RateLimiterService {
                 slidingWindowStrategy.isAllowed(key, getLimitForEndpoint(endpoint), properties.getWindowSizeSeconds());
 
         try {
-            return circuitBreaker.executeSupplier(redisCall);
+            RateLimitDecision decision = circuitBreaker.executeSupplier(redisCall);
+            // Seed the local cache so WARNING-state reads have real data instead
+            // of always missing and falling through to checkWithCircuitBreaker.
+            localCache.put(key, decision.remaining());
+            return decision;
         } catch (Exception e) {
             log.warn("Circuit breaker prevented Redis call: {}", e.getMessage());
             return checkDegraded(key, endpoint);
@@ -72,9 +90,9 @@ public class RateLimiterService {
     }
 
     private RateLimitDecision checkWarning(String key, String endpoint) {
-        warningCallCounter++;
+        int count = warningCallCounter.incrementAndGet();
 
-        if (warningCallCounter % 5 == 0) {
+        if (count % 5 == 0) {
             return checkWithCircuitBreaker(key, endpoint);
         }
 
@@ -94,8 +112,8 @@ public class RateLimiterService {
 
     private RateLimitDecision checkDegraded(String key, String endpoint) {
         // PROBE: Every 10th request, try Redis to see if it's back
-        degradedProbeCounter++;
-        if (degradedProbeCounter % 10 == 0) {
+        int count = degradedProbeCounter.incrementAndGet();
+        if (count % 10 == 0) {
             log.debug("DEGRADED probe: Testing if Redis is back...");
             try {
                 RateLimitDecision redisDecision = checkWithCircuitBreaker(key, endpoint);

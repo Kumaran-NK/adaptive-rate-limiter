@@ -11,17 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class HealthStateMetrics {
 
     private final AtomicInteger currentState;
-    private final Counter stateTransitions;
+    private final MeterRegistry registry;
 
     public HealthStateMetrics(MeterRegistry registry) {
-        this.currentState = registry.gauge("rate_limiter_health_state",
-                new AtomicInteger(0));
-
-        this.stateTransitions = Counter.builder("rate_limiter_state_transitions_total")
-                .description("Total state transitions")
-                .register(registry);
-
-        // Initialize to HEALTHY (0)
+        this.registry = registry;
+        this.currentState = registry.gauge("rate_limiter_health_state", new AtomicInteger(0));
         updateState(HealthState.HEALTHY);
     }
 
@@ -36,6 +30,11 @@ public class HealthStateMetrics {
     }
 
     public void recordTransition(HealthState from, HealthState to) {
-        stateTransitions.increment();
+        Counter.builder("rate_limiter_state_transitions_total")
+                .description("Total state transitions")
+                .tag("from", from.name())
+                .tag("to", to.name())
+                .register(registry)
+                .increment();
     }
 }

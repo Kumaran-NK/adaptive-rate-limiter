@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.ratelimiter.adaptive_rate_limiter.config.RateLimiterProperties;
+import com.ratelimiter.adaptive_rate_limiter.metrics.HealthStateMetrics;
 import com.ratelimiter.adaptive_rate_limiter.model.HealthCheckEvent;
 import com.ratelimiter.adaptive_rate_limiter.model.HealthState;
 import com.ratelimiter.adaptive_rate_limiter.model.StateTransition;
@@ -23,12 +24,16 @@ public class StateMachine {
             new AtomicReference<>(HealthState.HEALTHY);
     private final CircuitBreaker circuitBreaker;
     private final RateLimiterProperties properties;
+    private final HealthStateMetrics healthStateMetrics;
 
     private Instant stateEnteredAt = Instant.now();
 
-    public StateMachine(CircuitBreaker circuitBreaker, RateLimiterProperties properties) {
+    public StateMachine(CircuitBreaker circuitBreaker,
+                         RateLimiterProperties properties,
+                         HealthStateMetrics healthStateMetrics) {
         this.circuitBreaker = circuitBreaker;
         this.properties = properties;
+        this.healthStateMetrics = healthStateMetrics;
     }
 
     public HealthState getCurrentState() {
@@ -49,18 +54,19 @@ public class StateMachine {
             stateEnteredAt = Instant.now();
             String reason = buildReason(oldState, newState, event);
             log.warn("STATE TRANSITION: {} → {} | Reason: {}", oldState, newState, reason);
+
+            healthStateMetrics.updateState(newState);
+            healthStateMetrics.recordTransition(oldState, newState);
+
             return new StateTransition(oldState, newState, reason, Instant.now());
         }
         return null;
     }
 
     private HealthState evaluateFromHealthy(HealthCheckEvent event) {
-        // Fast path: circuit breaker open → straight to DEGRADED
         if (circuitBreaker.getState() == CircuitBreaker.State.OPEN) {
             return HealthState.DEGRADED;
         }
-
-        // Hysteresis: Enter WARNING only above enterWarningLatency
         if (event.p99LatencyMs() > properties.getHysteresis().getEnterWarningLatencyMs()
                 || event.errorRate() > 0.01) {
             return HealthState.WARNING;
@@ -69,12 +75,18 @@ public class StateMachine {
     }
 
     private HealthState evaluateFromWarning(HealthCheckEvent event) {
-        // Circuit breaker opened → DEGRADED
         if (circuitBreaker.getState() == CircuitBreaker.State.OPEN) {
             return HealthState.DEGRADED;
         }
 
-        // Hysteresis: Exit WARNING only below exitWarningLatency AND stable
+        // NEW: latency-based escalation — Redis alive but consistently slow
+        // shouldn't be able to sit in WARNING forever without ever falling back.
+        if (event.p99LatencyMs() > properties.getRedisLatencyCriticalThreshold()
+                && stableForSeconds(properties.getHysteresis().getWarningStabilizationSeconds())) {
+            log.warn("Sustained critical latency in WARNING state — forcing DEGRADED");
+            return HealthState.DEGRADED;
+        }
+
         if (event.p99LatencyMs() < properties.getHysteresis().getExitWarningLatencyMs()
                 && event.errorRate() == 0
                 && stableForSeconds(properties.getHysteresis().getWarningStabilizationSeconds())) {
@@ -84,18 +96,13 @@ public class StateMachine {
     }
 
     private HealthState evaluateFromDegraded(HealthCheckEvent event) {
-        // If Redis is reachable and stable, transition to recovery.
         if (isHealthyEnoughForRecovery(event)) {
-            // Check if circuit breaker is allowing calls (CLOSED or HALF_OPEN)
             if (circuitBreaker.getState() == CircuitBreaker.State.HALF_OPEN
                     || circuitBreaker.getState() == CircuitBreaker.State.CLOSED) {
                 if (stableForSeconds(properties.getHysteresis().getDegradedStabilizationSeconds())) {
                     return HealthState.RECOVERY;
                 }
             }
-
-            // Even if circuit is OPEN, if Redis has been healthy for a while,
-            // force transition to RECOVERY (the probe calls will eventually close the circuit)
             if (circuitBreaker.getState() == CircuitBreaker.State.OPEN
                     && stableForSeconds(properties.getHysteresis().getDegradedStabilizationSeconds() + 60)) {
                 log.info("Redis healthy for extended period, forcing recovery despite circuit state");
@@ -106,13 +113,10 @@ public class StateMachine {
     }
 
     private HealthState evaluateFromRecovery(HealthCheckEvent event) {
-        // Fully healthy
         if (isHealthyEnoughForRecovery(event)
                 && stableForSeconds(properties.getHysteresis().getRecoveryStabilizationSeconds())) {
             return HealthState.HEALTHY;
         }
-
-        // Redis acting up again → fast exit to WARNING
         if (event.p99LatencyMs() > properties.getHysteresis().getEnterWarningLatencyMs()
                 || event.errorRate() > 0.01) {
             return HealthState.WARNING;

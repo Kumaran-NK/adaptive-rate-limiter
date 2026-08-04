@@ -26,7 +26,18 @@ public class RedisHealthProbe {
 
     private final Queue<Double> latencyWindow = new LinkedList<>();
     private final Queue<Boolean> errorWindow = new LinkedList<>();
-    private static final int WINDOW_SIZE = 5;
+    // Was 5 -- too small for a meaningful P99, a single outlier dominated
+    // percentile results for several health-check cycles after it occurred.
+    // 20 samples at the default 3s check interval ~= a 60s rolling window,
+    // matching rate-limiter.window-size-seconds.
+    private static final int WINDOW_SIZE = 20;
+
+    // Skips the very first probe from statistics -- it includes one-time
+    // connection/auth handshake cost (observed ~700ms on cold start locally),
+    // not steady-state Redis latency. Without this, cold start falsely
+    // triggers WARNING and the outlier lingers in the window for several
+    // cycles before aging out.
+    private boolean isFirstProbe = true;
 
     public RedisHealthProbe(RedisTemplate<String, String> redisTemplate,
                              StateMachine stateMachine,
@@ -54,6 +65,13 @@ public class RedisHealthProbe {
             log.debug("Redis health check failed: {}", e.getMessage());
             reachable = false;
             latencyMs = properties.getRedisLatencyCriticalThreshold() * 2;
+        }
+
+        if (isFirstProbe) {
+            isFirstProbe = false;
+            log.debug("Skipping first health check from latency window (connection warmup): {}ms, reachable={}",
+                    latencyMs, reachable);
+            return;
         }
 
         addToLatencyWindow(latencyMs);
