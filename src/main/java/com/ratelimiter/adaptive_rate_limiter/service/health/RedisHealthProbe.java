@@ -1,17 +1,18 @@
 package com.ratelimiter.adaptive_rate_limiter.service.health;
 
-import com.ratelimiter.adaptive_rate_limiter.config.RateLimiterProperties;
-import com.ratelimiter.adaptive_rate_limiter.model.HealthCheckEvent;
-import com.ratelimiter.adaptive_rate_limiter.service.state.AlertSuppressionService;
-import com.ratelimiter.adaptive_rate_limiter.service.state.StateMachine;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import com.ratelimiter.adaptive_rate_limiter.config.RateLimiterProperties;
+import com.ratelimiter.adaptive_rate_limiter.model.HealthCheckEvent;
+import com.ratelimiter.adaptive_rate_limiter.service.state.AlertSuppressionService;
+import com.ratelimiter.adaptive_rate_limiter.service.state.StateMachine;
 
 @Service
 public class RedisHealthProbe {
@@ -25,7 +26,7 @@ public class RedisHealthProbe {
 
     private final Queue<Double> latencyWindow = new LinkedList<>();
     private final Queue<Boolean> errorWindow = new LinkedList<>();
-    private static final int WINDOW_SIZE = 20;
+    private static final int WINDOW_SIZE = 5;
 
     public RedisHealthProbe(RedisTemplate<String, String> redisTemplate,
                              StateMachine stateMachine,
@@ -37,7 +38,8 @@ public class RedisHealthProbe {
         this.properties = properties;
     }
 
-    @Scheduled(fixedDelayString = "${rate-limiter.redis-health-check-interval:5000}")
+    @Scheduled(fixedDelayString = "${rate-limiter.redis-health-check-interval:3000}",
+           initialDelayString = "${rate-limiter.redis-health-check-initial-delay:5000}")
     public void checkHealth() {
         long start = System.currentTimeMillis();
         boolean reachable = false;
