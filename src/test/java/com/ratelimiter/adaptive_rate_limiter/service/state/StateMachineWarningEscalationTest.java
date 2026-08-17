@@ -61,7 +61,8 @@ class StateMachineWarningEscalationTest {
                 250.0,
                 0.0,
                 true,
-                Instant.now().toEpochMilli()
+                Instant.now().toEpochMilli(),
+                -1
         );
 
         var transition = stateMachine.evaluateHealth(slowButReachable);
@@ -90,7 +91,8 @@ class StateMachineWarningEscalationTest {
                 80.0,
                 0.0,
                 true,
-                Instant.now().toEpochMilli()
+                Instant.now().toEpochMilli(),
+                -1
         );
 
         var transition = stateMachine.evaluateHealth(moderatelySlow);
