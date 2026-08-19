@@ -40,7 +40,8 @@ class StateMachineRecoveryTest {
                 60.0,
                 0.0,
                 false,
-                Instant.now().toEpochMilli()
+                Instant.now().toEpochMilli(),
+                -1
         );
 
         var degradedTransition = stateMachine.evaluateHealth(degradedEvent);
@@ -55,7 +56,8 @@ class StateMachineRecoveryTest {
                 20.0,
                 0.0,
                 true,
-                Instant.now().toEpochMilli()
+                Instant.now().toEpochMilli(),
+                -1
         );
 
         var recoveryTransition = stateMachine.evaluateHealth(recoveryEvent);
@@ -93,7 +95,8 @@ class StateMachineRecoveryTest {
                 20.0,
                 0.0,
                 true,
-                Instant.now().toEpochMilli()
+                Instant.now().toEpochMilli(),
+                -1
         );
 
         var transition = stateMachine.evaluateHealth(healthyEvent);

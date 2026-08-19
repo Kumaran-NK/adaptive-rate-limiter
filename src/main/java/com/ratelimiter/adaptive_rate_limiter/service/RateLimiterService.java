@@ -111,12 +111,21 @@ public class RateLimiterService {
     }
 
     private RateLimitDecision checkDegraded(String key, String endpoint) {
-        // PROBE: Every 10th request, try Redis to see if it's back
+        // PROBE: Every 10th request, try Redis directly through the circuit breaker
+        // to see if it's back. This deliberately does NOT go through
+        // checkWithCircuitBreaker(), because that method swallows
+        // CallNotPermittedException and recurses back into checkDegraded(),
+        // which previously caused this probe to log a false "SUCCESS" even
+        // when the circuit breaker blocked the call and Redis was never
+        // actually reached. Guarding on circuit state here avoids attempting
+        // (and misreporting) a probe we already know will be blocked.
         int count = degradedProbeCounter.incrementAndGet();
-        if (count % 10 == 0) {
+        if (count % 10 == 0 && circuitBreaker.getState() != CircuitBreaker.State.OPEN) {
             log.debug("DEGRADED probe: Testing if Redis is back...");
             try {
-                RateLimitDecision redisDecision = checkWithCircuitBreaker(key, endpoint);
+                RateLimitDecision redisDecision = circuitBreaker.executeSupplier(() ->
+                        slidingWindowStrategy.isAllowed(key, getLimitForEndpoint(endpoint), properties.getWindowSizeSeconds()));
+                localCache.put(key, redisDecision.remaining());
                 log.info("DEGRADED probe SUCCESS: Redis is reachable!");
                 return redisDecision;
             } catch (Exception e) {

@@ -1,5 +1,6 @@
 package com.ratelimiter.adaptive_rate_limiter.service.health;
 
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -19,6 +20,13 @@ public class RedisHealthProbe {
 
     private static final Logger log = LoggerFactory.getLogger(RedisHealthProbe.class);
 
+    // Shared, fleet-wide "Redis has been healthy since X" signal. Any instance
+    // may set it; the first one to observe recovery wins (SETNX-style), so all
+    // instances measure recovery stability from the same wall-clock moment
+    // instead of each instance's own, possibly-later, first observation.
+    private static final String HEALTHY_SINCE_KEY = "ratelimit:global:healthy-since";
+    private static final int HEALTHY_SIGNAL_TTL_SECONDS = 120;
+
     private final RedisTemplate<String, String> redisTemplate;
     private final StateMachine stateMachine;
     private final AlertSuppressionService alertSuppression;
@@ -26,17 +34,8 @@ public class RedisHealthProbe {
 
     private final Queue<Double> latencyWindow = new LinkedList<>();
     private final Queue<Boolean> errorWindow = new LinkedList<>();
-    // Was 5 -- too small for a meaningful P99, a single outlier dominated
-    // percentile results for several health-check cycles after it occurred.
-    // 20 samples at the default 3s check interval ~= a 60s rolling window,
-    // matching rate-limiter.window-size-seconds.
     private static final int WINDOW_SIZE = 20;
 
-    // Skips the very first probe from statistics -- it includes one-time
-    // connection/auth handshake cost (observed ~700ms on cold start locally),
-    // not steady-state Redis latency. Without this, cold start falsely
-    // triggers WARNING and the outlier lingers in the window for several
-    // cycles before aging out.
     private boolean isFirstProbe = true;
 
     public RedisHealthProbe(RedisTemplate<String, String> redisTemplate,
@@ -77,13 +76,18 @@ public class RedisHealthProbe {
         addToLatencyWindow(latencyMs);
         addToErrorWindow(!reachable);
 
+        long sharedHealthySince = reachable
+                ? updateAndReadSharedHealthySignal()
+                : clearSharedHealthySignal();
+
         HealthCheckEvent event = new HealthCheckEvent(
                 calculatePercentile(50),
                 calculatePercentile(95),
                 calculatePercentile(99),
                 calculateErrorRate(),
                 reachable,
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                sharedHealthySince
         );
 
         log.debug("Health check: P50={}ms, P99={}ms, ErrorRate={}%, Reachable={}",
@@ -94,6 +98,46 @@ public class RedisHealthProbe {
         if (transition != null) {
             alertSuppression.onStateTransition(transition);
         }
+    }
+
+    /**
+     * Sets the shared "healthy since" timestamp if no instance has already
+     * claimed one (so the earliest observer wins), or refreshes its TTL if
+     * one already exists, keeping the original timestamp intact. Returns the
+     * winning timestamp, or -1 if the write/read itself failed.
+     */
+    private long updateAndReadSharedHealthySignal() {
+        try {
+            String now = String.valueOf(System.currentTimeMillis());
+            Boolean wasSet = redisTemplate.opsForValue().setIfAbsent(
+                    HEALTHY_SINCE_KEY, now, Duration.ofSeconds(HEALTHY_SIGNAL_TTL_SECONDS));
+
+            if (Boolean.TRUE.equals(wasSet)) {
+                return Long.parseLong(now);
+            }
+
+            // Someone else already claimed it -- refresh TTL, keep their timestamp.
+            redisTemplate.expire(HEALTHY_SINCE_KEY, Duration.ofSeconds(HEALTHY_SIGNAL_TTL_SECONDS));
+            String existing = redisTemplate.opsForValue().get(HEALTHY_SINCE_KEY);
+            return existing != null ? Long.parseLong(existing) : -1;
+        } catch (Exception e) {
+            log.debug("Failed to update shared healthy-since signal: {}", e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * Best-effort clear of the shared signal when this instance sees Redis
+     * as unreachable. If Redis is genuinely down this call will itself fail
+     * silently -- that's fine, the key's TTL will expire it regardless.
+     */
+    private long clearSharedHealthySignal() {
+        try {
+            redisTemplate.delete(HEALTHY_SINCE_KEY);
+        } catch (Exception e) {
+            log.debug("Could not clear shared healthy-since signal (expected if Redis is down): {}", e.getMessage());
+        }
+        return -1;
     }
 
     private void addToLatencyWindow(double latency) {

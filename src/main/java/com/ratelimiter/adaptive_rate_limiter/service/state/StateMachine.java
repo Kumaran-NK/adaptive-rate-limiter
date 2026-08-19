@@ -28,6 +28,17 @@ public class StateMachine {
 
     private Instant stateEnteredAt = Instant.now();
 
+    // Tracks the last time the shared-signal forced-recovery branch fired,
+    // so a stale-but-still-valid shared timestamp can't force recovery on
+    // every single health check when the circuit breaker is stuck OPEN due
+    // to lack of real traffic (idle system). Without this cooldown, once the
+    // shared timestamp satisfies the stability threshold it stays satisfied
+    // forever (it's only refreshed, never reset), which combined with
+    // evaluateFromHealthy() immediately bouncing back to DEGRADED whenever
+    // the circuit is OPEN produces rapid DEGRADED<->RECOVERY<->HEALTHY
+    // flapping every health-check interval.
+    private Instant lastForcedRecoveryUsingSharedSignal = Instant.EPOCH;
+
     public StateMachine(CircuitBreaker circuitBreaker,
                          RateLimiterProperties properties,
                          HealthStateMetrics healthStateMetrics) {
@@ -79,8 +90,6 @@ public class StateMachine {
             return HealthState.DEGRADED;
         }
 
-        // NEW: latency-based escalation — Redis alive but consistently slow
-        // shouldn't be able to sit in WARNING forever without ever falling back.
         if (event.p99LatencyMs() > properties.getRedisLatencyCriticalThreshold()
                 && stableForSeconds(properties.getHysteresis().getWarningStabilizationSeconds())) {
             log.warn("Sustained critical latency in WARNING state — forcing DEGRADED");
@@ -99,14 +108,21 @@ public class StateMachine {
         if (isHealthyEnoughForRecovery(event)) {
             if (circuitBreaker.getState() == CircuitBreaker.State.HALF_OPEN
                     || circuitBreaker.getState() == CircuitBreaker.State.CLOSED) {
-                if (stableForSeconds(properties.getHysteresis().getDegradedStabilizationSeconds())) {
+                if (isStableForRecovery(event, properties.getHysteresis().getDegradedStabilizationSeconds())) {
                     return HealthState.RECOVERY;
                 }
             }
-            if (circuitBreaker.getState() == CircuitBreaker.State.OPEN
-                    && stableForSeconds(properties.getHysteresis().getDegradedStabilizationSeconds() + 60)) {
-                log.info("Redis healthy for extended period, forcing recovery despite circuit state");
-                return HealthState.RECOVERY;
+
+            if (circuitBreaker.getState() == CircuitBreaker.State.OPEN) {
+                int requiredSeconds = properties.getHysteresis().getDegradedStabilizationSeconds() + 60;
+                boolean cooldownElapsed = Instant.now().isAfter(
+                        lastForcedRecoveryUsingSharedSignal.plusSeconds(requiredSeconds));
+
+                if (isStableForRecovery(event, requiredSeconds) && cooldownElapsed) {
+                    log.info("Redis healthy for extended period, forcing recovery despite circuit state");
+                    lastForcedRecoveryUsingSharedSignal = Instant.now();
+                    return HealthState.RECOVERY;
+                }
             }
         }
         return HealthState.DEGRADED;
@@ -114,9 +130,10 @@ public class StateMachine {
 
     private HealthState evaluateFromRecovery(HealthCheckEvent event) {
         if (isHealthyEnoughForRecovery(event)
-                && stableForSeconds(properties.getHysteresis().getRecoveryStabilizationSeconds())) {
+                && isStableForRecovery(event, properties.getHysteresis().getRecoveryStabilizationSeconds())) {
             return HealthState.HEALTHY;
         }
+
         if (event.p99LatencyMs() > properties.getHysteresis().getEnterWarningLatencyMs()
                 || event.errorRate() > 0.01) {
             return HealthState.WARNING;
@@ -136,6 +153,16 @@ public class StateMachine {
 
     private boolean stableForSeconds(int seconds) {
         return Instant.now().isAfter(stateEnteredAt.plusSeconds(seconds));
+    }
+
+    private boolean isStableForRecovery(HealthCheckEvent event, int seconds) {
+        if (event.sharedHealthySinceMillis() > 0) {
+            long elapsedSharedMs = System.currentTimeMillis() - event.sharedHealthySinceMillis();
+            if (elapsedSharedMs >= seconds * 1000L) {
+                return true;
+            }
+        }
+        return stableForSeconds(seconds);
     }
 
     private String buildReason(HealthState from, HealthState to, HealthCheckEvent event) {
