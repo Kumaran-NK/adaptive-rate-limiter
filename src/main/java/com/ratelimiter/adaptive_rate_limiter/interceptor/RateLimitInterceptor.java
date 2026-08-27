@@ -27,7 +27,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             apiKey = request.getRemoteAddr();
         }
 
-        String endpoint = request.getRequestURI();
+        // Resolve the raw URI (e.g. "/api/payment") to the logical endpoint name
+        // ("payment") that per-endpoint config is keyed on. Passing the raw URI
+        // here made every rate-limiter.endpoints.* lookup miss and fall back to
+        // global defaults. See EndpointKeyResolver.
+        String endpoint = EndpointKeyResolver.resolve(request.getRequestURI());
 
         try {
             RateLimitDecision decision = rateLimiterService.isAllowed(apiKey, endpoint);

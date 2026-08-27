@@ -68,9 +68,13 @@ public class LuaScriptLoader {
     @SuppressWarnings("rawtypes")
     private final DefaultRedisScript<List> gcraScript;
 
+    @SuppressWarnings("rawtypes")
+    private final DefaultRedisScript<List> leaseQuotaScript;
+
     public LuaScriptLoader() {
         this.slidingWindowScript = loadScript("lua/sliding_window.lua");
         this.gcraScript = loadScript("lua/gcra.lua");
+        this.leaseQuotaScript = loadScript("lua/lease_quota.lua");
         log.info("Lua scripts loaded successfully");
     }
 
@@ -97,5 +101,9 @@ public class LuaScriptLoader {
 
     public DefaultRedisScript<List> getGcraScript() {
         return gcraScript;
+    }
+
+    public DefaultRedisScript<List> getLeaseQuotaScript() {
+        return leaseQuotaScript;
     }
 }

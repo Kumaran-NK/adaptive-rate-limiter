@@ -1,0 +1,148 @@
+Benchmark run started: 2026-08-26 20:16:28 IST
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< com.ratelimiter:adaptive-rate-limiter >----------------
+[INFO] Building adaptive-rate-limiter 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ adaptive-rate-limiter ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 4 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ adaptive-rate-limiter ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ adaptive-rate-limiter ---
+[INFO] skip non existing resourceDirectory D:\RATE LIMITER V2\adaptive-rate-limiter\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ adaptive-rate-limiter ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ adaptive-rate-limiter ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.benchmark.MultiPodLeasingTest
+20:16:50.391 [main] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+20:16:50.416 [main] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+20:16:50.577 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 1.21.4
+20:16:51.424 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Loaded org.testcontainers.dockerclient.NpipeSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+20:16:52.606 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with local Npipe socket (npipe:////./pipe/docker_engine)
+20:16:52.611 [main] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+20:16:52.682 [main] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.6.2
+  API Version: 1.55
+  Operating System: Docker Desktop
+  Total Memory: 3760 MB
+  Labels: 
+    com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+20:16:52.959 [main] INFO tc.testcontainers/ryuk:0.12.0 -- Creating container for image: testcontainers/ryuk:0.12.0
+20:16:53.149 [main] INFO org.testcontainers.utility.RegistryAuthLocator -- Failure when attempting to lookup auth config. Please ignore if you don't have images in an authenticated registry. Details: (dockerImageName: testcontainers/ryuk:0.12.0, configFile: C:\Users\Kumaran N\.docker\config.json, configEnv: DOCKER_AUTH_CONFIG). Falling back to docker-java default behaviour. Exception message: 
+20:16:53.775 [main] INFO tc.testcontainers/ryuk:0.12.0 -- Container testcontainers/ryuk:0.12.0 is starting: 3811890151a16c96bcffa0eb4aa98b918f491f34abda1d227243cc298bcf2ff4
+20:16:55.207 [main] INFO tc.testcontainers/ryuk:0.12.0 -- Container testcontainers/ryuk:0.12.0 started in PT2.2466879S
+20:16:55.225 [main] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+20:16:55.226 [main] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+20:16:55.228 [main] INFO org.testcontainers.DockerClientFactory -- ?? Docker server version should be at least 1.6.0
+20:16:55.230 [main] INFO tc.redis:7-alpine -- Creating container for image: redis:7-alpine
+20:16:55.609 [main] INFO tc.redis:7-alpine -- Container redis:7-alpine is starting: ab2f27da9fe3b25960ff3f48b243bd200a34fb91b43a02618236169c2bf0679d
+20:16:56.777 [main] INFO tc.redis:7-alpine -- Container redis:7-alpine started in PT1.5467701S
+20:16:59.020 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.509 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.516 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.522 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.532 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.536 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.554 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.558 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.568 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.570 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:00.586 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:35.701 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:35.993 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:36.004 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:36.010 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:36.014 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:36.022 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:36.033 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:36.038 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:36.044 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:36.063 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.090 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.101 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.110 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.118 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.121 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.132 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.143 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.153 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.160 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:17:38.169 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.680 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.687 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.701 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.709 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.718 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.728 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.736 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.744 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.754 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:08.761 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+
+===BENCH-REPORT-START===
+# Phase 2 (direct GCRA) vs Phase 3 (leased GCRA) -- multi-pod
+
+config: pods=10 requests=100000 limit=1000/60s K=100 (maxLeaseFraction=0.100)
+redis: shared Testcontainers redis:7-alpine; each pod has its own connection
+headline: Redis calls saved = phase2 calls (1/req) - phase3 calls (leases + empty-budget probes)
+
+## HEALTHY (sub-limit, 100 keys)
+phase          |   requests |   admitted |     denied |  redis_calls |   p50 ms |   p95 ms |   p99 ms
+------------------------------------------------------------------------------------------------
+PHASE2 direct  |     100000 |     100000 |          0 |       100000 |    2.682 |    6.360 |    9.528
+PHASE3 leased  |     100000 |     100000 |          0 |         1000 |    0.000 |    0.014 |    1.886
+>> Redis calls saved: 99000 of 100000 (99.0%) ; global admits: phase2=100000 phase3=100000
+>> Phase 3 aggregate peak admits/10ms across 100 keys = 9024 ; per-key bound P*K = 1000 ; aggregate bound = 100000
+
+## ABUSE (over-limit, 1 hot key)
+phase          |   requests |   admitted |     denied |  redis_calls |   p50 ms |   p95 ms |   p99 ms
+------------------------------------------------------------------------------------------------
+PHASE2 direct  |     100000 |       1486 |      98514 |       100000 |    2.520 |    5.777 |    8.005
+PHASE3 leased  |     100000 |       1454 |      98546 |        99010 |    2.317 |    5.593 |    7.779
+>> Redis calls saved: 990 of 100000 (1.0%) ; global admits: phase2=1486 phase3=1454
+>> Phase 3 instantaneous overshoot (max admits/10ms, 1 key) = 1000 ; per-key bound P*K = 1000 ; limit = 1000
+
+
+===BENCH-REPORT-END===
+20:18:37.508 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:37.599 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:37.603 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:37.612 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:37.616 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:37.619 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+[Test2] pods=5 limit=100/1s admits=390 over 3.0s -> aggregateRate=130/s (target 100/s)
+20:18:41.243 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:41.315 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:41.322 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:41.328 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:41.334 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:41.337 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+[Test3] pods=5 K=25 bound(P*K)=125 limit=100 observedInstantMax=100 (exceeds limit? false)
+20:18:43.942 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+20:18:44.007 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+[Test1] requests=1000 admitted=1000 redisCalls=100 saved=900 (90.0%)
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 114.4 s -- in com.ratelimiter.adaptive_rate_limiter.benchmark.MultiPodLeasingTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  02:04 min
+[INFO] Finished at: 2026-08-26T20:18:45+05:30
+[INFO] ------------------------------------------------------------------------
+EXIT_CODE=0 finished: 2026-08-26 20:18:45 IST

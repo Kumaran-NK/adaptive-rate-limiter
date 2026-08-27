@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.ratelimiter.adaptive_rate_limiter.benchmark.MultiPodLeasingTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 13.45 s -- in com.ratelimiter.adaptive_rate_limiter.benchmark.MultiPodLeasingTest

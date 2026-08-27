@@ -1,0 +1,114 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< com.ratelimiter:adaptive-rate-limiter >----------------
+[INFO] Building adaptive-rate-limiter 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ adaptive-rate-limiter ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ adaptive-rate-limiter ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ adaptive-rate-limiter ---
+[INFO] skip non existing resourceDirectory D:\RATE LIMITER V2\adaptive-rate-limiter\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ adaptive-rate-limiter ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ adaptive-rate-limiter ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.benchmark.RateLimiterAlgorithmBenchmark
+17:05:09.122 [main] INFO org.testcontainers.images.PullPolicy -- Image pull policy will be performed by: DefaultPullPolicy()
+17:05:09.131 [main] INFO org.testcontainers.utility.ImageNameSubstitutor -- Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+17:05:09.246 [main] INFO org.testcontainers.DockerClientFactory -- Testcontainers version: 1.21.4
+17:05:10.812 [main] INFO org.testcontainers.dockerclient.DockerClientProviderStrategy -- Found Docker environment with local Npipe socket (npipe:////./pipe/docker_engine)
+17:05:10.826 [main] INFO org.testcontainers.DockerClientFactory -- Docker host IP address is localhost
+17:05:10.886 [main] INFO org.testcontainers.DockerClientFactory -- Connected to docker: 
+  Server Version: 29.6.2
+  API Version: 1.55
+  Operating System: Docker Desktop
+  Total Memory: 3760 MB
+  Labels: 
+    com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+17:05:11.200 [main] INFO tc.testcontainers/ryuk:0.12.0 -- Pulling docker image: testcontainers/ryuk:0.12.0. Please be patient; this may take some time but only needs to be done once.
+17:05:11.364 [main] INFO org.testcontainers.utility.RegistryAuthLocator -- Failure when attempting to lookup auth config. Please ignore if you don't have images in an authenticated registry. Details: (dockerImageName: testcontainers/ryuk:latest, configFile: C:\Users\Kumaran N\.docker\config.json, configEnv: DOCKER_AUTH_CONFIG). Falling back to docker-java default behaviour. Exception message: 
+17:05:17.272 [docker-java-stream--1931961954] INFO tc.testcontainers/ryuk:0.12.0 -- Starting to pull image
+17:05:17.334 [docker-java-stream--1931961954] INFO tc.testcontainers/ryuk:0.12.0 -- Pulling image layers:  0 pending,  0 downloaded,  0 extracted, (0 bytes/0 bytes)
+17:05:19.183 [docker-java-stream--1931961954] INFO tc.testcontainers/ryuk:0.12.0 -- Pulling image layers:  2 pending,  1 downloaded,  0 extracted, (3 MB/? MB)
+17:05:19.589 [docker-java-stream--1931961954] INFO tc.testcontainers/ryuk:0.12.0 -- Pulling image layers:  2 pending,  1 downloaded,  1 extracted, (4 MB/? MB)
+17:05:20.287 [docker-java-stream--1931961954] INFO tc.testcontainers/ryuk:0.12.0 -- Pulling image layers:  1 pending,  2 downloaded,  1 extracted, (6 MB/? MB)
+17:05:20.489 [docker-java-stream--1931961954] INFO tc.testcontainers/ryuk:0.12.0 -- Pulling image layers:  1 pending,  2 downloaded,  2 extracted, (6 MB/? MB)
+17:05:21.384 [docker-java-stream--1931961954] INFO tc.testcontainers/ryuk:0.12.0 -- Pulling image layers:  0 pending,  3 downloaded,  2 extracted, (9 MB/10 MB)
+17:05:21.387 [docker-java-stream--1931961954] INFO tc.testcontainers/ryuk:0.12.0 -- Pulling image layers:  0 pending,  3 downloaded,  3 extracted, (9 MB/10 MB)
+17:05:21.423 [docker-java-stream--1931961954] INFO tc.testcontainers/ryuk:0.12.0 -- Pull complete. 3 layers, pulled in 4s (downloaded 9 MB at 2 MB/s)
+17:05:21.424 [main] INFO tc.testcontainers/ryuk:0.12.0 -- Image testcontainers/ryuk:0.12.0 pull took PT10.2232745S
+17:05:21.696 [main] INFO tc.testcontainers/ryuk:0.12.0 -- Creating container for image: testcontainers/ryuk:0.12.0
+17:05:22.219 [main] INFO tc.testcontainers/ryuk:0.12.0 -- Container testcontainers/ryuk:0.12.0 is starting: c55719f384c0eef8b94913fe1e7d834dd24ab14ee8e9b6442a29da8d8c35a887
+17:05:23.697 [main] INFO tc.testcontainers/ryuk:0.12.0 -- Container testcontainers/ryuk:0.12.0 started in PT2.0012444S
+17:05:23.721 [main] INFO org.testcontainers.utility.RyukResourceReaper -- Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+17:05:23.722 [main] INFO org.testcontainers.DockerClientFactory -- Checking the system...
+17:05:23.723 [main] INFO org.testcontainers.DockerClientFactory -- ?? Docker server version should be at least 1.6.0
+17:05:23.725 [main] INFO tc.redis:7-alpine -- Creating container for image: redis:7-alpine
+17:05:23.931 [main] INFO tc.redis:7-alpine -- Container redis:7-alpine is starting: 00b1c7b0ab2fc4f99bc54da39b1bc60292b091823bbcbeff76ea8214f21fd081
+17:05:24.909 [main] INFO tc.redis:7-alpine -- Container redis:7-alpine started in PT1.1842402S
+17:05:27.028 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+
+=== SCENARIO E - CONCURRENT SAME KEY ===
+keys=1 requestsPerKey=500 concurrency=64 limit=100 windowSeconds=1
+Algorithm      Result
+SLIDING_WINDOW total=500 allowed=100 denied=400 throughput=840.4/s avg=73.91ms p50=28.45ms p95=392.82ms p99=403.29ms | redisKeys=1 slidingWindowZsetEntries=100 (GCRA stores 1 scalar per key, 0 zset entries)
+GCRA           total=500 allowed=111 denied=389 throughput=3292.9/s avg=16.63ms p50=14.34ms p95=38.36ms p99=42.68ms | redisKeys=1 slidingWindowZsetEntries=0 (GCRA stores 1 scalar per key, 0 zset entries)
+17:05:28.813 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+
+=== SCENARIO C - HIGH TRAFFIC ===
+keys=1 requestsPerKey=500 concurrency=16 limit=100 windowSeconds=1
+Algorithm      Result
+SLIDING_WINDOW total=500 allowed=100 denied=400 throughput=2777.1/s avg=5.52ms p50=4.60ms p95=10.93ms p99=13.56ms | redisKeys=1 slidingWindowZsetEntries=100 (GCRA stores 1 scalar per key, 0 zset entries)
+GCRA           total=500 allowed=111 denied=389 throughput=4045.5/s avg=3.86ms p50=3.40ms p95=6.50ms p99=6.77ms | redisKeys=1 slidingWindowZsetEntries=0 (GCRA stores 1 scalar per key, 0 zset entries)
+17:05:29.201 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+
+=== SCENARIO A - LOW TRAFFIC ===
+keys=1 requestsPerKey=20 concurrency=2 limit=100 windowSeconds=1
+Algorithm      Result
+SLIDING_WINDOW total=20 allowed=20 denied=0 throughput=573.5/s avg=3.35ms p50=3.22ms p95=3.97ms p99=4.00ms | redisKeys=1 slidingWindowZsetEntries=20 (GCRA stores 1 scalar per key, 0 zset entries)
+GCRA           total=20 allowed=20 denied=0 throughput=523.8/s avg=3.73ms p50=3.86ms p95=4.44ms p99=4.45ms | redisKeys=1 slidingWindowZsetEntries=0 (GCRA stores 1 scalar per key, 0 zset entries)
+17:05:29.390 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+
+=== SCENARIO D - BURST THEN SUSTAINED ===
+SLIDING_WINDOW burst-phase: total=200 allowed=100 denied=100 throughput=1613.8/s avg=4.78ms p50=4.73ms p95=6.48ms p99=6.86ms
+SLIDING_WINDOW sustained-phase (after 1 window): total=100 allowed=100 denied=0 throughput=314.4/s avg=3.15ms p50=2.70ms p95=6.16ms p99=15.60ms
+GCRA           burst-phase: total=200 allowed=110 denied=90 throughput=1776.7/s avg=4.39ms p50=4.21ms p95=6.75ms p99=7.61ms
+GCRA           sustained-phase (after 1 window): total=100 allowed=100 denied=0 throughput=385.9/s avg=2.50ms p50=2.28ms p95=3.80ms p99=5.74ms
+17:05:32.533 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+
+=== SCENARIO B - AT LIMIT ===
+keys=1 requestsPerKey=100 concurrency=4 limit=100 windowSeconds=1
+Algorithm      Result
+SLIDING_WINDOW total=100 allowed=100 denied=0 throughput=1231.3/s avg=3.19ms p50=3.23ms p95=4.99ms p99=5.87ms | redisKeys=1 slidingWindowZsetEntries=100 (GCRA stores 1 scalar per key, 0 zset entries)
+GCRA           total=100 allowed=100 denied=0 throughput=1491.4/s avg=2.62ms p50=2.78ms p95=3.94ms p99=3.99ms | redisKeys=1 slidingWindowZsetEntries=0 (GCRA stores 1 scalar per key, 0 zset entries)
+17:05:32.746 [main] INFO com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader -- Lua scripts loaded successfully
+
+=== SCENARIO F - MANY KEYS ===
+keys=200 requestsPerKey=5 concurrency=16 limit=100 windowSeconds=1
+Algorithm      Result
+SLIDING_WINDOW total=1000 allowed=1000 denied=0 throughput=3961.6/s avg=3.93ms p50=3.82ms p95=6.23ms p99=7.28ms | redisKeys=200 slidingWindowZsetEntries=1000 (GCRA stores 1 scalar per key, 0 zset entries)
+GCRA           total=1000 allowed=1000 denied=0 throughput=4746.7/s avg=3.29ms p50=3.25ms p95=4.69ms p99=5.29ms | redisKeys=46 slidingWindowZsetEntries=0 (GCRA stores 1 scalar per key, 0 zset entries)
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 25.10 s -- in com.ratelimiter.adaptive_rate_limiter.benchmark.RateLimiterAlgorithmBenchmark
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  33.449 s
+[INFO] Finished at: 2026-08-24T17:05:34+05:30
+[INFO] ------------------------------------------------------------------------

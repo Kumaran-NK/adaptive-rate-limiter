@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.ratelimiter.adaptive_rate_limiter.service.strategy.GcraInvariantTest
+-------------------------------------------------------------------------------
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.44 s -- in com.ratelimiter.adaptive_rate_limiter.service.strategy.GcraInvariantTest

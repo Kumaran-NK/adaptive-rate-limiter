@@ -11,11 +11,14 @@ import com.ratelimiter.adaptive_rate_limiter.model.RateLimitDecision;
 import com.ratelimiter.adaptive_rate_limiter.redis.LuaScriptLoader;
 
 /**
- * Experimental GCRA (Generic Cell Rate Algorithm) rate limiting strategy.
+ * GCRA (Generic Cell Rate Algorithm) rate limiting strategy.
  *
- * <p>This is an isolated, standalone alternative to {@link SlidingWindowStrategy}
- * for comparison purposes only. It is NOT wired into {@code RateLimiterService}
- * or any other production code path.
+ * <p>An alternative to {@link SlidingWindowStrategy}, selected per endpoint by
+ * {@code RateLimiterService} for RATE/PACING endpoints (e.g. search, ai-inference)
+ * via {@code RateLimiterProperties.getStrategyForEndpoint}. EXACT_QUOTA endpoints
+ * (payment, sms) stay on Sliding Window because GCRA's rolling-window count can
+ * exceed the nominal limit by design (see {@code GcraInvariantTest.invariant_12}
+ * and docs/GCRA-vs-Sliding-Window-Decision.md).
  *
  * <p><b>Semantics</b> (see {@code gcra.lua} for the full derivation):
  * <ul>

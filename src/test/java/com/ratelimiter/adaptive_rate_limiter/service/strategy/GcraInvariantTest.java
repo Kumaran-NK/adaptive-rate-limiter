@@ -265,6 +265,41 @@ class GcraInvariantTest extends RedisStrategyTestBase {
                 "real Redis concurrency should stay in the same narrow band around the burst limit");
     }
 
+    @Test
+    void invariant_12_rollingWindowCountCanExceedLimitByDesign() {
+        // DELIBERATE (see docs/GCRA-vs-Sliding-Window-Decision.md section 5.3):
+        // with DVT = period, GCRA is a burst-allowance + pacing limiter, NOT an
+        // exact rolling-window counter. After a full burst of `limit` against an
+        // idle key it immediately re-admits one request per emission interval, so
+        // a rolling window of width `period` can hold the burst PLUS the paced
+        // admits -- up to ~2*limit - 1. Sliding Window is the algorithm that
+        // guarantees "no more than N in any rolling window"; GCRA does not.
+        int limit = 10;
+        int windowSeconds = 1;
+        long periodMs = windowSeconds * 1000L;
+        String key = uniqueKey("g12-rolling-overage");
+
+        long windowStart = redisNowMs();
+        long windowEnd = windowStart + periodMs;
+        int admittedInWindow = 0;
+
+        // Drive burst-then-sustained pressure for exactly one period, counting
+        // only admits whose acceptance time falls inside [windowStart, windowEnd).
+        while (redisNowMs() < windowEnd) {
+            boolean allowed = gcraStrategy.isAllowed(key, limit, windowSeconds).allowed();
+            if (allowed && redisNowMs() < windowEnd) {
+                admittedInWindow++;
+            }
+        }
+
+        assertTrue(admittedInWindow > limit,
+                "a rolling " + windowSeconds + "s window must be able to exceed the nominal limit "
+                        + "(burst + paced admits); admittedInWindow=" + admittedInWindow);
+        assertTrue(admittedInWindow <= 2 * limit,
+                "rolling overage should stay within the ~2*limit GCRA bound; admittedInWindow="
+                        + admittedInWindow);
+    }
+
     private String redisKey(String key) {
         return "ratelimit:" + key + ":gcra";
     }

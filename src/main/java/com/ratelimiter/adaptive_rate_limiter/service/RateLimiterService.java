@@ -13,7 +13,11 @@ import com.ratelimiter.adaptive_rate_limiter.metrics.RateLimiterMetrics;
 import com.ratelimiter.adaptive_rate_limiter.model.DegradationMode;
 import com.ratelimiter.adaptive_rate_limiter.model.HealthState;
 import com.ratelimiter.adaptive_rate_limiter.model.RateLimitDecision;
+import com.ratelimiter.adaptive_rate_limiter.model.StrategyType;
+import com.ratelimiter.adaptive_rate_limiter.service.quota.LeaseManager;
 import com.ratelimiter.adaptive_rate_limiter.service.state.StateMachine;
+import com.ratelimiter.adaptive_rate_limiter.service.strategy.GcraStrategy;
+import com.ratelimiter.adaptive_rate_limiter.service.strategy.RateLimitStrategy;
 import com.ratelimiter.adaptive_rate_limiter.service.strategy.SlidingWindowStrategy;
 import com.ratelimiter.adaptive_rate_limiter.service.strategy.TokenBucketStrategy;
 
@@ -27,32 +31,38 @@ public class RateLimiterService {
 
     private final StateMachine stateMachine;
     private final SlidingWindowStrategy slidingWindowStrategy;
+    private final GcraStrategy gcraStrategy;
     private final TokenBucketStrategy tokenBucketStrategy;
     private final LocalRateLimitCache localCache;
     private final RateLimiterProperties properties;
     private final PodDiscoveryService podDiscoveryService;
     private final CircuitBreaker circuitBreaker;
     private final RateLimiterMetrics rateLimiterMetrics;
+    private final LeaseManager leaseManager;
 
     private final AtomicInteger warningCallCounter = new AtomicInteger();
     private final AtomicInteger degradedProbeCounter = new AtomicInteger();
 
     public RateLimiterService(StateMachine stateMachine,
                                SlidingWindowStrategy slidingWindowStrategy,
+                               GcraStrategy gcraStrategy,
                                TokenBucketStrategy tokenBucketStrategy,
                                LocalRateLimitCache localCache,
                                RateLimiterProperties properties,
                                PodDiscoveryService podDiscoveryService,
                                CircuitBreakerRegistry circuitBreakerRegistry,
-                               RateLimiterMetrics rateLimiterMetrics) {
+                               RateLimiterMetrics rateLimiterMetrics,
+                               LeaseManager leaseManager) {
         this.stateMachine = stateMachine;
         this.slidingWindowStrategy = slidingWindowStrategy;
+        this.gcraStrategy = gcraStrategy;
         this.tokenBucketStrategy = tokenBucketStrategy;
         this.localCache = localCache;
         this.properties = properties;
         this.podDiscoveryService = podDiscoveryService;
         this.circuitBreaker = circuitBreakerRegistry.circuitBreaker("redis");
         this.rateLimiterMetrics = rateLimiterMetrics;
+        this.leaseManager = leaseManager;
     }
 
     public RateLimitDecision isAllowed(String key, String endpoint) {
@@ -74,8 +84,30 @@ public class RateLimiterService {
     }
 
     private RateLimitDecision checkWithCircuitBreaker(String key, String endpoint) {
+        return checkDistributed(key, endpoint, false);
+    }
+
+    private RateLimitDecision checkDistributed(String key, String endpoint, boolean recovering) {
+        // Quota-leasing fast path -- RATE/PACING (GCRA) endpoints only. The
+        // `== GCRA` test IS the hard EXACT_QUOTA guard: payment/sms resolve to
+        // SLIDING_WINDOW, so they can never reach the leased path and always take
+        // the per-request distributed call below. A null decision means Redis is
+        // unavailable, so we degrade exactly as the distributed path would. During
+        // RECOVERY the manager leases conservatively (minLease) via `recovering`.
+        if (properties.getLeasing().isEnabled()
+                && properties.getStrategyForEndpoint(endpoint) == StrategyType.GCRA) {
+            RateLimitDecision leased = leaseManager.tryAdmit(
+                    key, getLimitForEndpoint(endpoint), properties.getWindowSizeSeconds(), recovering);
+            if (leased != null) {
+                localCache.put(key, leased.remaining());
+                return leased;
+            }
+            return checkDegraded(key, endpoint);
+        }
+
+        RateLimitStrategy distributedStrategy = distributedStrategyFor(endpoint);
         Supplier<RateLimitDecision> redisCall = () ->
-                slidingWindowStrategy.isAllowed(key, getLimitForEndpoint(endpoint), properties.getWindowSizeSeconds());
+                distributedStrategy.isAllowed(key, getLimitForEndpoint(endpoint), properties.getWindowSizeSeconds());
 
         try {
             RateLimitDecision decision = circuitBreaker.executeSupplier(redisCall);
@@ -103,7 +135,7 @@ public class RateLimiterService {
                     cachedValue - 1,
                     System.currentTimeMillis() + properties.getWindowSizeSeconds() * 1000L,
                     HealthState.WARNING,
-                    "SLIDING_WINDOW_CACHED"
+                    properties.getStrategyForEndpoint(endpoint).name() + "_CACHED"
             );
         }
 
@@ -124,7 +156,7 @@ public class RateLimiterService {
             log.debug("DEGRADED probe: Testing if Redis is back...");
             try {
                 RateLimitDecision redisDecision = circuitBreaker.executeSupplier(() ->
-                        slidingWindowStrategy.isAllowed(key, getLimitForEndpoint(endpoint), properties.getWindowSizeSeconds()));
+                        distributedStrategyFor(endpoint).isAllowed(key, getLimitForEndpoint(endpoint), properties.getWindowSizeSeconds()));
                 localCache.put(key, redisDecision.remaining());
                 log.info("DEGRADED probe SUCCESS: Redis is reachable!");
                 return redisDecision;
@@ -159,11 +191,28 @@ public class RateLimiterService {
     }
 
     private RateLimitDecision checkRecovery(String key, String endpoint) {
-        return checkWithCircuitBreaker(key, endpoint);
+        // Same distributed path as HEALTHY, but leases conservatively (minLease)
+        // so a just-recovered Redis is eased back into rather than hit with full
+        // batches. Applies only to leased GCRA endpoints; others are unaffected.
+        return checkDistributed(key, endpoint, true);
     }
 
     public HealthState getCurrentHealthState() {
         return stateMachine.getCurrentState();
+    }
+
+    /**
+     * Selects the distributed strategy for an endpoint from its configured policy:
+     * EXACT_QUOTA endpoints (payment, sms) resolve to Sliding Window; RATE/PACING
+     * endpoints (search, ai-inference) resolve to GCRA. Unconfigured endpoints fall
+     * back to the global default (SLIDING_WINDOW). This is the only place the two
+     * distributed algorithms are chosen between -- a data-driven policy lookup, not
+     * a hardcoded toggle. Token Bucket remains the local degraded-mode fast path.
+     */
+    private RateLimitStrategy distributedStrategyFor(String endpoint) {
+        return properties.getStrategyForEndpoint(endpoint) == StrategyType.GCRA
+                ? gcraStrategy
+                : slidingWindowStrategy;
     }
 
     private int getLimitForEndpoint(String endpoint) {

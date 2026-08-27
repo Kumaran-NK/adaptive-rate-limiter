@@ -1,0 +1,255 @@
+Run started: 2026-08-26 20:11:49 IST
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------< com.ratelimiter:adaptive-rate-limiter >----------------
+[INFO] Building adaptive-rate-limiter 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ adaptive-rate-limiter ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 4 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ adaptive-rate-limiter ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ adaptive-rate-limiter ---
+[INFO] skip non existing resourceDirectory D:\RATE LIMITER V2\adaptive-rate-limiter\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ adaptive-rate-limiter ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ adaptive-rate-limiter ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.AdaptiveRateLimiterApplicationTests
+20:12:12.284 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.ratelimiter.adaptive_rate_limiter.AdaptiveRateLimiterApplicationTests]: AdaptiveRateLimiterApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+20:12:12.617 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.ratelimiter.adaptive_rate_limiter.AdaptiveRateLimiterApplication for test class com.ratelimiter.adaptive_rate_limiter.AdaptiveRateLimiterApplicationTests
+20:12:12.860 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.ratelimiter.adaptive_rate_limiter.AdaptiveRateLimiterApplicationTests]: AdaptiveRateLimiterApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+20:12:12.861 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.ratelimiter.adaptive_rate_limiter.AdaptiveRateLimiterApplication for test class com.ratelimiter.adaptive_rate_limiter.AdaptiveRateLimiterApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.0)
+
+2026-08-26T20:12:14.334+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] .r.a.AdaptiveRateLimiterApplicationTests : Starting AdaptiveRateLimiterApplicationTests using Java 21.0.6 with PID 764 (started by Kumaran N in D:\RATE LIMITER V2\adaptive-rate-limiter)
+2026-08-26T20:12:14.339+05:30 DEBUG 764 --- [adaptive-rate-limiter] [           main] .r.a.AdaptiveRateLimiterApplicationTests : Running with Spring Boot v4.1.0, Spring v7.0.8
+2026-08-26T20:12:14.341+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] .r.a.AdaptiveRateLimiterApplicationTests : No active profile set, falling back to 1 default profile: "default"
+2026-08-26T20:12:17.257+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-08-26T20:12:17.267+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-08-26T20:12:17.405+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 92 ms. Found 0 Redis repository interfaces.
+2026-08-26T20:12:18.582+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=469c89a6-dabf-30d2-b431-12b6397ef1bc
+2026-08-26T20:12:21.017+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:21.164+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.s.health.CircuitBreakerMonitor     : Circuit breaker event listeners registered
+2026-08-26T20:12:23.907+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 4 endpoints beneath base path '/actuator'
+2026-08-26T20:12:24.183+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] .r.a.AdaptiveRateLimiterApplicationTests : Started AdaptiveRateLimiterApplicationTests in 10.817 seconds (process running for 15.153)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (C:\Users\Kumaran N\.m2\repository\net\bytebuddy\byte-buddy-agent\1.18.10\byte-buddy-agent-1.18.10.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.49 s -- in com.ratelimiter.adaptive_rate_limiter.AdaptiveRateLimiterApplicationTests
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.benchmark.MultiPodLeasingTest
+2026-08-26T20:12:26.359+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] org.testcontainers.images.PullPolicy     : Image pull policy will be performed by: DefaultPullPolicy()
+2026-08-26T20:12:26.376+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] o.t.utility.ImageNameSubstitutor         : Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+2026-08-26T20:12:26.411+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] org.testcontainers.DockerClientFactory   : Testcontainers version: 1.21.4
+2026-08-26T20:12:26.972+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] o.t.d.DockerClientProviderStrategy       : Loaded org.testcontainers.dockerclient.NpipeSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+2026-08-26T20:12:27.757+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] o.t.d.DockerClientProviderStrategy       : Found Docker environment with local Npipe socket (npipe:////./pipe/docker_engine)
+2026-08-26T20:12:27.759+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] org.testcontainers.DockerClientFactory   : Docker host IP address is localhost
+2026-08-26T20:12:27.827+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] org.testcontainers.DockerClientFactory   : Connected to docker: 
+  Server Version: 29.6.2
+  API Version: 1.55
+  Operating System: Docker Desktop
+  Total Memory: 3760 MB
+  Labels: 
+    com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+2026-08-26T20:12:28.168+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.testcontainers/ryuk:0.12.0            : Creating container for image: testcontainers/ryuk:0.12.0
+2026-08-26T20:12:28.408+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] o.t.utility.RegistryAuthLocator          : Failure when attempting to lookup auth config. Please ignore if you don't have images in an authenticated registry. Details: (dockerImageName: testcontainers/ryuk:0.12.0, configFile: C:\Users\Kumaran N\.docker\config.json, configEnv: DOCKER_AUTH_CONFIG). Falling back to docker-java default behaviour. Exception message: 
+2026-08-26T20:12:28.956+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.testcontainers/ryuk:0.12.0            : Container testcontainers/ryuk:0.12.0 is starting: 71faadeed2d0a88d22fab9327cfe514b1e15197d0a4dd6bbd4d77dcca4357356
+2026-08-26T20:12:30.395+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.testcontainers/ryuk:0.12.0            : Container testcontainers/ryuk:0.12.0 started in PT2.2271101S
+2026-08-26T20:12:30.409+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] o.t.utility.RyukResourceReaper           : Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+2026-08-26T20:12:30.409+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] org.testcontainers.DockerClientFactory   : Checking the system...
+2026-08-26T20:12:30.410+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] org.testcontainers.DockerClientFactory   : ?? Docker server version should be at least 1.6.0
+2026-08-26T20:12:30.411+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.redis:7-alpine                        : Creating container for image: redis:7-alpine
+2026-08-26T20:12:30.527+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Skipping first health check from latency window (connection warmup): 1310.0ms, reachable=true
+2026-08-26T20:12:30.673+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.redis:7-alpine                        : Container redis:7-alpine is starting: de57bdc652220d13e71cabd5b242742f9f79acbf95e708260411624f06981851
+2026-08-26T20:12:31.905+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.redis:7-alpine                        : Container redis:7-alpine started in PT1.4932158S
+2026-08-26T20:12:31.925+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:32.021+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:32.092+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:32.157+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:32.163+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:32.167+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:32.175+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:33.579+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=6.0ms, ErrorRate=0.0%, Reachable=true
+[Test2] pods=5 limit=100/1s admits=376 over 3.0s -> aggregateRate=125/s (target 100/s)
+2026-08-26T20:12:36.121+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:36.200+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:36.209+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:36.217+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:36.229+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:36.244+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:36.623+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=5.0ms, P99=6.0ms, ErrorRate=0.0%, Reachable=true
+[Test3] pods=5 K=25 bound(P*K)=125 limit=100 observedInstantMax=100 (exceeds limit? false)
+2026-08-26T20:12:38.909+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:39.006+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+[Test1] requests=1000 admitted=1000 redisCalls=100 saved=900 (90.0%)
+[WARNING] Tests run: 4, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 13.45 s -- in com.ratelimiter.adaptive_rate_limiter.benchmark.MultiPodLeasingTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.interceptor.EndpointKeyResolverTest
+2026-08-26T20:12:39.663+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.056 s -- in com.ratelimiter.adaptive_rate_limiter.interceptor.EndpointKeyResolverTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.quota.AdaptiveLeaseControllerTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.042 s -- in com.ratelimiter.adaptive_rate_limiter.service.quota.AdaptiveLeaseControllerTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.quota.GcraQuotaAllocatorTest
+2026-08-26T20:12:39.763+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:39.769+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:39.852+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:39.854+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:41.069+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:41.076+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:41.294+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:41.294+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:41.412+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:41.423+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:41.501+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:41.505+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.831 s -- in com.ratelimiter.adaptive_rate_limiter.service.quota.GcraQuotaAllocatorTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.quota.LeaseFailureTest
+2026-08-26T20:12:41.567+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.redis:7-alpine                        : Creating container for image: redis:7-alpine
+2026-08-26T20:12:41.775+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.redis:7-alpine                        : Container redis:7-alpine is starting: eca0e506f48f98449308ef074e0dcac387b236c984657a691c4cb3fe9f4b7138
+2026-08-26T20:12:42.681+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=5.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:12:42.729+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.redis:7-alpine                        : Container redis:7-alpine started in PT1.1618306S
+2026-08-26T20:12:42.735+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:43.485+05:30  WARN 764 --- [adaptive-rate-limiter] [           main] c.r.a.service.quota.LeaseManager         : Lease acquisition failed for cold-real-redis (Redis unavailable?): Unable to connect to Redis
+2026-08-26T20:12:43.506+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.redis:7-alpine                        : Creating container for image: redis:7-alpine
+2026-08-26T20:12:43.696+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.redis:7-alpine                        : Container redis:7-alpine is starting: cdb6f1c84ecfe0d5f9cb9f25e791f8dad9c233fadfa04db4b52a333313237922
+2026-08-26T20:12:44.682+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] tc.redis:7-alpine                        : Container redis:7-alpine started in PT1.1765661S
+2026-08-26T20:12:44.693+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:44.909+05:30  INFO 764 --- [adaptive-rate-limiter] [ecutorLoop-71-1] i.l.core.protocol.ConnectionWatchdog     : Reconnecting, last destination was localhost/127.0.0.1:59208
+2026-08-26T20:12:44.952+05:30  WARN 764 --- [adaptive-rate-limiter] [oEventLoop-73-2] i.l.core.protocol.ConnectionWatchdog     : Cannot reconnect to [localhost/<unresolved>:59208]: Connection closed prematurely
+
+io.lettuce.core.RedisConnectionException: Connection closed prematurely
+	at io.lettuce.core.protocol.RedisHandshakeHandler.channelInactive(RedisHandshakeHandler.java:76) ~[lettuce-core-7.5.2.RELEASE.jar:7.5.2.RELEASE/5728917]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelInactive(AbstractChannelHandlerContext.java:251) ~[netty-transport-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.channel.ChannelInboundHandlerAdapter.channelInactive(ChannelInboundHandlerAdapter.java:81) ~[netty-transport-4.2.15.Final.jar:4.2.15.Final]
+	at io.lettuce.core.ChannelGroupListener.channelInactive(ChannelGroupListener.java:54) ~[lettuce-core-7.5.2.RELEASE.jar:7.5.2.RELEASE/5728917]
+	at io.netty.channel.AbstractChannelHandlerContext.fireChannelInactive(AbstractChannelHandlerContext.java:251) ~[netty-transport-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.channel.DefaultChannelPipeline$HeadContext.channelInactive(DefaultChannelPipeline.java:1424) ~[netty-transport-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.channel.DefaultChannelPipeline.fireChannelInactive(DefaultChannelPipeline.java:876) ~[netty-transport-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.channel.AbstractChannel$AbstractUnsafe$6.run(AbstractChannel.java:676) ~[netty-transport-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.util.concurrent.AbstractEventExecutor.runTask(AbstractEventExecutor.java:148) ~[netty-common-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.util.concurrent.AbstractEventExecutor.safeExecute(AbstractEventExecutor.java:141) ~[netty-common-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:535) ~[netty-common-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.channel.SingleThreadIoEventLoop.run(SingleThreadIoEventLoop.java:201) ~[netty-transport-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.util.concurrent.SingleThreadEventExecutor$5.run(SingleThreadEventExecutor.java:1195) ~[netty-common-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74) ~[netty-common-4.2.15.Final.jar:4.2.15.Final]
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30) ~[netty-common-4.2.15.Final.jar:4.2.15.Final]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2026-08-26T20:12:45.704+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=5.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:12:45.950+05:30  WARN 764 --- [adaptive-rate-limiter] [           main] c.r.a.service.quota.LeaseManager         : Lease acquisition failed for survive-real-redis (Redis unavailable?): Redis command timed out
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.387 s -- in com.ratelimiter.adaptive_rate_limiter.service.quota.LeaseFailureTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.quota.LeaseManagerTest
+2026-08-26T20:12:46.022+05:30  WARN 764 --- [adaptive-rate-limiter] [           main] c.r.a.service.quota.LeaseManager         : Lease acquisition failed for survive (Redis unavailable?): simulated Redis failure
+2026-08-26T20:12:46.028+05:30  WARN 764 --- [adaptive-rate-limiter] [           main] c.r.a.service.quota.LeaseManager         : Lease acquisition failed for cold (Redis unavailable?): simulated Redis failure
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.110 s -- in com.ratelimiter.adaptive_rate_limiter.service.quota.LeaseManagerTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.quota.LeaseRefundTest
+2026-08-26T20:12:46.110+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:46.116+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:46.212+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:46.215+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.207 s -- in com.ratelimiter.adaptive_rate_limiter.service.quota.LeaseRefundTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.RateLimiterServiceLeasingGuardTest
+2026-08-26T20:12:46.527+05:30  WARN 764 --- [adaptive-rate-limiter] [      Finalizer] i.l.c.resource.DefaultClientResources    : io.lettuce.core.resource.DefaultClientResources was not shut down properly, shutdown() was not called before it's garbage-collected. Call shutdown() or shutdown(long,long,TimeUnit) 
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.613 s -- in com.ratelimiter.adaptive_rate_limiter.service.RateLimiterServiceLeasingGuardTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.RateLimiterServiceStrategySelectionTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s -- in com.ratelimiter.adaptive_rate_limiter.service.RateLimiterServiceStrategySelectionTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.state.StateMachineRecoveryTest
+2026-08-26T20:12:48.657+05:30  WARN 764 --- [adaptive-rate-limiter] [           main] c.r.a.service.state.StateMachine         : STATE TRANSITION: RECOVERY ? HEALTHY | Reason: P99: 20.0ms, ErrorRate: 0.00%, Redis: reachable, Circuit: CLOSED, Stable: 0s
+2026-08-26T20:12:48.667+05:30  WARN 764 --- [adaptive-rate-limiter] [           main] c.r.a.service.state.StateMachine         : STATE TRANSITION: HEALTHY ? DEGRADED | Reason: P99: 60.0ms, ErrorRate: 0.00%, Redis: unreachable, Circuit: OPEN, Stable: 0s
+2026-08-26T20:12:48.668+05:30  WARN 764 --- [adaptive-rate-limiter] [           main] c.r.a.service.state.StateMachine         : STATE TRANSITION: DEGRADED ? RECOVERY | Reason: P99: 20.0ms, ErrorRate: 0.00%, Redis: reachable, Circuit: CLOSED, Stable: 0s
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.712 s -- in com.ratelimiter.adaptive_rate_limiter.service.state.StateMachineRecoveryTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.state.StateMachineWarningEscalationTest
+2026-08-26T20:12:48.681+05:30  WARN 764 --- [adaptive-rate-limiter] [           main] c.r.a.service.state.StateMachine         : Sustained critical latency in WARNING state — forcing DEGRADED
+2026-08-26T20:12:48.689+05:30  WARN 764 --- [adaptive-rate-limiter] [           main] c.r.a.service.state.StateMachine         : STATE TRANSITION: WARNING ? DEGRADED | Reason: P99: 250.0ms, ErrorRate: 0.00%, Redis: reachable, Circuit: CLOSED, Stable: 0s
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.043 s -- in com.ratelimiter.adaptive_rate_limiter.service.state.StateMachineWarningEscalationTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.strategy.AlgorithmComparisonTest
+2026-08-26T20:12:48.729+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=5.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:12:48.760+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:49.998+05:30  INFO 764 --- [adaptive-rate-limiter] [ecutorLoop-71-7] i.l.core.protocol.ConnectionWatchdog     : Reconnecting, last destination was localhost/<unresolved>:59208
+2026-08-26T20:12:49.998+05:30  WARN 764 --- [adaptive-rate-limiter] [oEventLoop-73-5] i.l.core.protocol.ConnectionWatchdog     : Cannot reconnect to [localhost/<unresolved>:59208]: Connection refused: getsockopt: localhost/127.0.0.1:59208
+2026-08-26T20:12:51.776+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:12:54.851+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:12:57.895+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:12:59.239+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:12:59.833+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.34 s -- in com.ratelimiter.adaptive_rate_limiter.service.strategy.AlgorithmComparisonTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.strategy.GcraInvariantTest
+2026-08-26T20:13:00.118+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:00.929+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:13:01.237+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:01.357+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:01.478+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:01.582+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:02.487+05:30  INFO 764 --- [adaptive-rate-limiter] [ecutorLoop-71-3] i.l.core.protocol.ConnectionWatchdog     : Reconnecting, last destination was localhost/<unresolved>:59208
+2026-08-26T20:13:02.492+05:30  WARN 764 --- [adaptive-rate-limiter] [oEventLoop-73-7] i.l.core.protocol.ConnectionWatchdog     : Cannot reconnect to [localhost/<unresolved>:59208]: Connection refused: getsockopt: localhost/127.0.0.1:59208
+2026-08-26T20:13:03.669+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:03.823+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:03.931+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:03.966+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:13:04.019+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:04.134+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:06.993+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:13:10.021+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:13:13.040+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:13:14.306+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:14.425+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.44 s -- in com.ratelimiter.adaptive_rate_limiter.service.strategy.GcraInvariantTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.strategy.GcraStrategyTest
+2026-08-26T20:13:15.555+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:15.566+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:15.578+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:15.590+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:15.892+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:15.978+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:16.025+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:16.071+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:13:17.637+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:17.824+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:17.938+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:18.023+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:18.099+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:18.888+05:30  INFO 764 --- [adaptive-rate-limiter] [ecutorLoop-71-5] i.l.core.protocol.ConnectionWatchdog     : Reconnecting, last destination was localhost/<unresolved>:59208
+2026-08-26T20:13:18.892+05:30  WARN 764 --- [adaptive-rate-limiter] [oEventLoop-73-8] i.l.core.protocol.ConnectionWatchdog     : Cannot reconnect to [localhost/<unresolved>:59208]: Connection refused: getsockopt: localhost/127.0.0.1:59208
+2026-08-26T20:13:19.103+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.306 s -- in com.ratelimiter.adaptive_rate_limiter.service.strategy.GcraStrategyTest
+[INFO] Running com.ratelimiter.adaptive_rate_limiter.service.strategy.SlidingWindowStrategyTest
+2026-08-26T20:13:19.875+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:20.016+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:20.130+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:20.245+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:20.330+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+2026-08-26T20:13:22.121+05:30 DEBUG 764 --- [adaptive-rate-limiter] [   scheduling-1] c.r.a.service.health.RedisHealthProbe    : Health check: P50=6.0ms, P99=10.0ms, ErrorRate=0.0%, Reachable=true
+2026-08-26T20:13:22.922+05:30  INFO 764 --- [adaptive-rate-limiter] [           main] c.r.a.redis.LuaScriptLoader              : Lua scripts loaded successfully
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.150 s -- in com.ratelimiter.adaptive_rate_limiter.service.strategy.SlidingWindowStrategyTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 73, Failures: 0, Errors: 0, Skipped: 1
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:21 min
+[INFO] Finished at: 2026-08-26T20:13:23+05:30
+[INFO] ------------------------------------------------------------------------
+EXIT_CODE=0 finished: 2026-08-26 20:13:24 IST
