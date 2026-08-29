@@ -70,7 +70,8 @@ public class GcraQuotaAllocator implements QuotaAllocator {
         long redisNowMs = result.get(2) != null ? result.get(2) : System.currentTimeMillis();
         long nextAvailableMs = result.get(3) != null ? result.get(3) : 0L;
 
-        long leaseExpiryMs = redisNowMs + properties.getLeasing().getLeaseTtlMs();
+        long localNowMs = System.currentTimeMillis();
+        long leaseExpiryMs = localNowMs + properties.getLeasing().getLeaseTtlMs();
         return new LeaseGrant(granted, leaseExpiryMs, nextAvailableMs);
     }
 }

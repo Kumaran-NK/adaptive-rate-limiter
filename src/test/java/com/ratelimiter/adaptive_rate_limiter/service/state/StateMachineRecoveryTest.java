@@ -2,7 +2,6 @@ package com.ratelimiter.adaptive_rate_limiter.service.state;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,7 +19,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 class StateMachineRecoveryTest {
 
     @Test
-    void shouldTransitionFromDegradedToRecoveryWhenRedisIsHealthyEnough() {
+    void shouldTransitionFromDegradedToRecoveryWhenRedisIsHealthyEnough() throws Exception {
         CircuitBreaker circuitBreaker = Mockito.mock(CircuitBreaker.class);
         when(circuitBreaker.getState()).thenReturn(CircuitBreaker.State.OPEN);
 
@@ -81,9 +80,7 @@ class StateMachineRecoveryTest {
 
         Field currentStateField = StateMachine.class.getDeclaredField("currentState");
         currentStateField.setAccessible(true);
-        @SuppressWarnings("unchecked")
-        AtomicReference<HealthState> currentState = (AtomicReference<HealthState>) currentStateField.get(stateMachine);
-        currentState.set(HealthState.RECOVERY);
+        currentStateField.set(stateMachine, HealthState.RECOVERY);
 
         Field stateEnteredAtField = StateMachine.class.getDeclaredField("stateEnteredAt");
         stateEnteredAtField.setAccessible(true);

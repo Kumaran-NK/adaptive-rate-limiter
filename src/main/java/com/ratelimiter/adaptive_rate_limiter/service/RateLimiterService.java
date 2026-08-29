@@ -128,11 +128,10 @@ public class RateLimiterService {
             return checkWithCircuitBreaker(key, endpoint);
         }
 
-        Integer cachedValue = localCache.get(key);
-        if (cachedValue != null && cachedValue > 0) {
-            localCache.put(key, cachedValue - 1);
+        LocalRateLimitCache.ConsumeResult consumeResult = localCache.tryConsume(key);
+        if (consumeResult.allowed()) {
             return RateLimitDecision.allowed(
-                    cachedValue - 1,
+                    consumeResult.remaining(),
                     System.currentTimeMillis() + properties.getWindowSizeSeconds() * 1000L,
                     HealthState.WARNING,
                     properties.getStrategyForEndpoint(endpoint).name() + "_CACHED"

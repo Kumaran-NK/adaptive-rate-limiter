@@ -72,6 +72,14 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Spring Boot 4 modularization: the MockMvc test slice (@AutoConfigureMockMvc,
+             MockMvcAutoConfiguration) is no longer transitive via starter-test; it ships
+             in its own webmvc test starter. Needed by RateLimiterIntegrationTest. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>

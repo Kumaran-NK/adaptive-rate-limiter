@@ -119,11 +119,18 @@ class GcraInvariantTest extends RedisStrategyTestBase {
         assertFalse(rejected.allowed());
 
         long retryAfterMs = expectedRetryAfterMs(key);
-        long waitTargetMs = redisNowMs() + Math.max(0L, retryAfterMs - 100L);
+        // Originally retryAfterMs - 100L, but the 100ms margin was too tight:
+        // the gap between two redisNowMs() calls, the waitUntilRedisNowAtLeast
+        // loop overshoot (Windows Thread.sleep(1) granularity ~15ms), and the
+        // subsequent GCRA Redis call can consume >100ms total. Using half the
+        // emission interval gives ample headroom while still proving the
+        // invariant: arriving well before retryAfter must still deny.
+        long margin = EMISSION_INTERVAL_MS / 2;
+        long waitTargetMs = redisNowMs() + Math.max(0L, retryAfterMs - margin);
         waitUntilRedisNowAtLeast(waitTargetMs);
 
         RateLimitDecision earlyRetry = gcraStrategy.isAllowed(key, LIMIT, WINDOW_SECONDS);
-        assertFalse(earlyRetry.allowed(), "waiting one millisecond before retryAfter must still reject");
+        assertFalse(earlyRetry.allowed(), "waiting well before retryAfter must still reject");
 
         long exactTargetMs = redisNowMs() + retryAfterMs + 10L;
         waitUntilRedisNowAtLeast(exactTargetMs);

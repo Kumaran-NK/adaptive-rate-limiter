@@ -1,7 +1,6 @@
 package com.ratelimiter.adaptive_rate_limiter.service.state;
 
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +19,11 @@ public class StateMachine {
 
     private static final Logger log = LoggerFactory.getLogger(StateMachine.class);
 
-    private final AtomicReference<HealthState> currentState =
-            new AtomicReference<>(HealthState.HEALTHY);
+    // State + stateEnteredAt form one logical unit. Both are guarded by
+    // synchronized(this) — see evaluateHealth() and getCurrentState().
+    // AtomicReference was removed because synchronized already provides
+    // mutual exclusion and visibility; keeping it would be misleading.
+    private HealthState currentState = HealthState.HEALTHY;
     private final CircuitBreaker circuitBreaker;
     private final RateLimiterProperties properties;
     private final HealthStateMetrics healthStateMetrics;
@@ -47,12 +49,27 @@ public class StateMachine {
         this.healthStateMetrics = healthStateMetrics;
     }
 
-    public HealthState getCurrentState() {
-        return currentState.get();
+    public synchronized HealthState getCurrentState() {
+        return currentState;
     }
 
-    public StateTransition evaluateHealth(HealthCheckEvent event) {
-        HealthState oldState = currentState.get();
+    /**
+     * Evaluates health and atomically transitions state if warranted.
+     *
+     * <p>Synchronized to guarantee:
+     * <ul>
+     *   <li>No TOCTOU race: two concurrent calls cannot both read the same
+     *       oldState and produce conflicting transitions.</li>
+     *   <li>Compound atomicity: {@code currentState} and {@code stateEnteredAt}
+     *       are always updated together — no reader can observe a new state
+     *       paired with a stale timestamp.</li>
+     * </ul>
+     *
+     * <p>This method runs on the health-check scheduler (every ~3s). There is
+     * no performance concern with intrinsic locking at this frequency.
+     */
+    public synchronized StateTransition evaluateHealth(HealthCheckEvent event) {
+        HealthState oldState = currentState;
         HealthState newState = switch (oldState) {
             case HEALTHY -> evaluateFromHealthy(event);
             case WARNING -> evaluateFromWarning(event);
@@ -61,7 +78,7 @@ public class StateMachine {
         };
 
         if (oldState != newState) {
-            currentState.set(newState);
+            currentState = newState;
             stateEnteredAt = Instant.now();
             String reason = buildReason(oldState, newState, event);
             log.warn("STATE TRANSITION: {} → {} | Reason: {}", oldState, newState, reason);

@@ -6,6 +6,7 @@ import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,11 @@ public class RedisHealthProbe {
     private final Queue<Boolean> errorWindow = new LinkedList<>();
     private static final int WINDOW_SIZE = 20;
 
+    // Guards the observation cycle: window updates + metric calculations must
+    // execute as one atomic unit so latency percentiles and error rate always
+    // represent the same set of observations.
+    private final Object windowLock = new Object();
+
     private boolean isFirstProbe = true;
 
     public RedisHealthProbe(RedisTemplate<String, String> redisTemplate,
@@ -51,13 +57,18 @@ public class RedisHealthProbe {
     @Scheduled(fixedDelayString = "${rate-limiter.redis-health-check-interval:3000}",
            initialDelayString = "${rate-limiter.redis-health-check-initial-delay:5000}")
     public void checkHealth() {
+        // --- Redis I/O: no lock held during network operation ---
         long start = System.currentTimeMillis();
         boolean reachable = false;
         double latencyMs = -1;
 
         try {
-            String result = redisTemplate.getConnectionFactory()
-                    .getConnection().ping();
+            // Use RedisCallback so Spring manages the connection lifecycle
+            // (borrow → use → return). The previous raw getConnection().ping()
+            // never released the connection, leaking one per health check.
+            String result = redisTemplate.execute(
+                    (RedisCallback<String>) connection -> connection.ping()
+            );
             reachable = "PONG".equals(result);
             latencyMs = System.currentTimeMillis() - start;
         } catch (Exception e) {
@@ -73,18 +84,27 @@ public class RedisHealthProbe {
             return;
         }
 
-        addToLatencyWindow(latencyMs);
-        addToErrorWindow(!reachable);
+        // --- Atomic observation cycle: window updates + metric snapshot ---
+        // Lock ensures latency/error windows and calculated metrics always
+        // represent the same set of observations. Only tiny in-memory
+        // operations happen under the lock.
+        double p50, p95, p99, errorRate;
+        synchronized (windowLock) {
+            addToLatencyWindow(latencyMs);
+            addToErrorWindow(!reachable);
+
+            p50 = calculatePercentile(50);
+            p95 = calculatePercentile(95);
+            p99 = calculatePercentile(99);
+            errorRate = calculateErrorRate();
+        }
 
         long sharedHealthySince = reachable
                 ? updateAndReadSharedHealthySignal()
                 : clearSharedHealthySignal();
 
         HealthCheckEvent event = new HealthCheckEvent(
-                calculatePercentile(50),
-                calculatePercentile(95),
-                calculatePercentile(99),
-                calculateErrorRate(),
+                p50, p95, p99, errorRate,
                 reachable,
                 System.currentTimeMillis(),
                 sharedHealthySince

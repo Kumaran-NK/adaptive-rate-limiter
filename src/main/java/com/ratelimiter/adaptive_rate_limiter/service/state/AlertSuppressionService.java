@@ -29,7 +29,7 @@ public class AlertSuppressionService {
     /**
      * Called on every state transition. Decides whether to fire an alert.
      */
-    public void onStateTransition(StateTransition transition) {
+    public synchronized void onStateTransition(StateTransition transition) {
         if (transition == null) return;
 
         recentTransitions.add(transition);

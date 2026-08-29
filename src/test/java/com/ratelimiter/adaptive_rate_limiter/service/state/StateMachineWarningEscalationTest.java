@@ -2,7 +2,6 @@ package com.ratelimiter.adaptive_rate_limiter.service.state;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,10 +28,7 @@ class StateMachineWarningEscalationTest {
 
         Field currentStateField = StateMachine.class.getDeclaredField("currentState");
         currentStateField.setAccessible(true);
-        @SuppressWarnings("unchecked")
-        var currentState = (java.util.concurrent.atomic.AtomicReference<HealthState>)
-                currentStateField.get(stateMachine);
-        currentState.set(HealthState.WARNING);
+        currentStateField.set(stateMachine, HealthState.WARNING);
 
         Field stateEnteredAtField = StateMachine.class.getDeclaredField("stateEnteredAt");
         stateEnteredAtField.setAccessible(true);

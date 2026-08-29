@@ -1,15 +1,22 @@
 -- Sliding Window Rate Limiter using Redis Sorted Sets
+--
+-- Uses Redis' own clock (TIME) rather than application-provided timestamps,
+-- so all pods in a multi-instance deployment agree on "now" with zero
+-- cross-node clock skew. This matches the pattern used by gcra.lua.
+--
 -- KEYS[1]: rate limit key
--- ARGV[1]: current timestamp in milliseconds
--- ARGV[2]: window size in milliseconds
--- ARGV[3]: maximum requests allowed
--- ARGV[4]: unique request ID
+-- ARGV[1]: window size in milliseconds
+-- ARGV[2]: maximum requests allowed
+-- ARGV[3]: unique request ID
 
 local key = KEYS[1]
-local now = tonumber(ARGV[1])
-local window_size = tonumber(ARGV[2])
-local limit = tonumber(ARGV[3])
-local request_id = ARGV[4]
+local window_size = tonumber(ARGV[1])
+local limit = tonumber(ARGV[2])
+local request_id = ARGV[3]
+
+-- Derive "now" from Redis server clock (atomic within this script)
+local time_parts = redis.call('TIME')
+local now = math.floor(tonumber(time_parts[1]) * 1000 + tonumber(time_parts[2]) / 1000)
 
 -- Remove expired entries
 local window_start = now - window_size

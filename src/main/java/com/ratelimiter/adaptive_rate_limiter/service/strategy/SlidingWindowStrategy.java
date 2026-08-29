@@ -26,26 +26,31 @@ public class SlidingWindowStrategy implements RateLimitStrategy {
     @Override
     public RateLimitDecision isAllowed(String key, int limit, int windowSeconds) {
         String redisKey = "ratelimit:" + key + ":window";
-        long now = System.currentTimeMillis();
         long windowMs = windowSeconds * 1000L;
         String requestId = UUID.randomUUID().toString();
 
+        // The Lua script derives "now" from redis.call('TIME') — no
+        // application timestamp is passed. ARGV order: windowMs, limit, requestId.
         List<Long> result = redisTemplate.execute(
                 slidingWindowScript,
                 List.of(redisKey),
-                String.valueOf(now),
                 String.valueOf(windowMs),
                 String.valueOf(limit),
                 requestId
         );
 
         if (result == null || result.isEmpty()) {
+            // Fail-safe deny. Use local clock only for the response header.
+            long now = System.currentTimeMillis();
             return RateLimitDecision.denied(now + windowMs, HealthState.HEALTHY, "SLIDING_WINDOW");
         }
 
         boolean allowed = result.get(0) == 1;
         int remaining = result.get(1) != null ? result.get(1).intValue() : 0;
-        long resetTime = result.get(2) != null ? result.get(2) : now + windowMs;
+        // resetTime is an absolute epoch-ms computed by Redis' own clock.
+        // For response headers this is fine; the actual decision was already
+        // made atomically inside Redis.
+        long resetTime = result.get(2) != null ? result.get(2) : System.currentTimeMillis() + windowMs;
 
         if (allowed) {
             return RateLimitDecision.allowed(remaining, resetTime, HealthState.HEALTHY, "SLIDING_WINDOW");

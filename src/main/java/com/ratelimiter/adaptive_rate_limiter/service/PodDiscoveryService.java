@@ -16,17 +16,29 @@ public class PodDiscoveryService {
      * no such variable is set.
      */
     public int getPodCount() {
-        String podCount = System.getenv("POD_COUNT");
-        if (podCount != null && !podCount.isEmpty()) {
-            return Integer.parseInt(podCount);
+        return parsePodCount(System::getenv);
+    }
+
+    int parsePodCount(java.util.function.Function<String, String> envResolver) {
+        String podCountStr = envResolver.apply("POD_COUNT");
+        if (podCountStr != null && !podCountStr.isEmpty()) {
+            try {
+                return Math.max(1, Integer.parseInt(podCountStr));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid POD_COUNT environment variable: {}", podCountStr);
+            }
         }
 
-        String replicas = System.getenv("REPLICAS");
-        if (replicas != null && !replicas.isEmpty()) {
-            return Integer.parseInt(replicas);
+        String replicasStr = envResolver.apply("REPLICAS");
+        if (replicasStr != null && !replicasStr.isEmpty()) {
+            try {
+                return Math.max(1, Integer.parseInt(replicasStr));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid REPLICAS environment variable: {}", replicasStr);
+            }
         }
 
-        log.debug("Pod count not available, defaulting to 1");
+        log.debug("Pod count not available or invalid, defaulting to 1");
         return 1;
     }
 }

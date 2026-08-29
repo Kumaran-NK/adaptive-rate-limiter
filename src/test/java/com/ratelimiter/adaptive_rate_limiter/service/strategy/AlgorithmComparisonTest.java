@@ -67,8 +67,14 @@ class AlgorithmComparisonTest extends RedisStrategyTestBase {
         // means GCRA is less strict about enforcing "no more than N in any
         // W-second span" than Sliding Window is.
         int limit = 10;
-        int windowSeconds = 1;
-        long emissionIntervalMs = (windowSeconds * 1000L) / limit; // 100ms
+        // Originally windowSeconds=1 (emission_interval = 100ms), but the burst
+        // loop makes 20 sequential Redis calls which can exceed 100ms wall-clock
+        // time, letting GCRA recover a slot before the denial check at line 81.
+        // Using windowSeconds=3 (emission_interval = 300ms) gives comfortable
+        // margin, while the sleep (4 × 300ms = 1.2s) is still well under the
+        // full 3s window, keeping the Sliding Window denial assertion valid.
+        int windowSeconds = 3;
+        long emissionIntervalMs = (windowSeconds * 1000L) / limit; // 300ms
         String swKey = uniqueKey("cmp-sw-recovery");
         String gcraKey = uniqueKey("cmp-gcra-recovery");
 
