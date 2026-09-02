@@ -122,6 +122,13 @@ public class RateLimiterService {
     }
 
     private RateLimitDecision checkWarning(String key, String endpoint) {
+        // EXACT_QUOTA endpoints must preserve their hard rolling-window
+        // guarantee even while Redis is slow. The local cache is intentionally
+        // approximate, so it is only eligible for GCRA/RATE-PACING endpoints.
+        if (properties.getStrategyForEndpoint(endpoint) != StrategyType.GCRA) {
+            return checkWithCircuitBreaker(key, endpoint);
+        }
+
         int count = warningCallCounter.incrementAndGet();
 
         if (count % 5 == 0) {

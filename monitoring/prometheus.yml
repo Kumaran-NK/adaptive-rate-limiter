@@ -5,8 +5,4 @@ scrape_configs:
   - job_name: 'adaptive-rate-limiter'
     metrics_path: '/actuator/prometheus'
     static_configs:
-<<<<<<< HEAD
-      - targets: ['host.docker.internal:8080']
-=======
-      - targets: ['host.docker.internal:8080', 'host.docker.internal:8081']
->>>>>>> 37fcd71b04cf5c2fbd8b259c52869857ee0f67e5
+      - targets: ['app:8080']

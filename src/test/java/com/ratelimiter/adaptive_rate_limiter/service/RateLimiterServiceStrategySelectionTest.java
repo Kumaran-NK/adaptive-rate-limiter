@@ -97,6 +97,16 @@ class RateLimiterServiceStrategySelectionTest {
         verify(gcra, never()).isAllowed(anyString(), anyInt(), anyInt());
     }
 
+    @Test
+    void warningStateKeepsExactQuotaOnDistributedSlidingWindowPath() {
+        when(stateMachine.getCurrentState()).thenReturn(HealthState.WARNING);
+
+        service.isAllowed("api-key", "payment");
+
+        verify(slidingWindow).isAllowed("api-key", 10, 60);
+        verify(localCache, never()).tryConsume(anyString());
+    }
+
     private static EndpointConfig endpoint(int limit, StrategyType strategy) {
         EndpointConfig config = new EndpointConfig();
         config.setLimit(limit);

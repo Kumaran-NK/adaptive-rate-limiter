@@ -1,5 +1,16 @@
-version: '3.8'
 services:
+  app:
+    image: adaptive-rate-limiter:1.0.0
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      POD_COUNT: 1
+    ports:
+      - "8080:8080"
+
   redis:
     image: redis:7-alpine
     ports:
