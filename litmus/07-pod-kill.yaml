@@ -1,0 +1,51 @@
+##############################################################################
+# Test 7 — Pod Kill (Forced Delete)
+# Forcefully terminates an adaptive-rate-limiter pod (SIGKILL, no grace).
+# Verifies: Kubernetes recovery and rate-limiter continuity even when
+#           the pod has no chance to shut down gracefully.
+##############################################################################
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: rate-limiter-pod-kill
+  namespace: rate-limiter
+  labels:
+    chaos-test: "07-pod-kill"
+spec:
+  engineState: active
+  annotationCheck: "false"
+
+  appinfo:
+    appns: rate-limiter
+    applabel: app=rate-limiter
+    appkind: deployment
+
+  chaosServiceAccount: litmus-chaos
+  jobCleanUpPolicy: delete
+
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            # Required by chaoslib to find target pods in the correct namespace
+            - name: APP_NAMESPACE
+              value: "rate-limiter"
+            - name: APP_LABEL
+              value: "app=rate-limiter"
+            # Total wall-clock duration of the chaos injection (seconds)
+            - name: TOTAL_CHAOS_DURATION
+              value: "30"
+            # Interval between successive pod kills (seconds)
+            - name: CHAOS_INTERVAL
+              value: "10"
+            # FORCE = true → immediate kill, no terminationGracePeriodSeconds
+            # This is the key difference from Test 1 (graceful delete)
+            - name: FORCE
+              value: "true"
+            # Kill half the matching pods each interval
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            # Kill pods one at a time
+            - name: SEQUENCE
+              value: "serial"

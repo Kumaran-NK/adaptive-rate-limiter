@@ -1,0 +1,47 @@
+##############################################################################
+# Test 1 — Pod Delete (Graceful)
+# Deletes one adaptive-rate-limiter pod gracefully every 10 s for 30 s.
+# Verifies: Kubernetes recreates the pod and the service continues.
+##############################################################################
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: rate-limiter-pod-delete
+  namespace: rate-limiter
+  labels:
+    chaos-test: "01-pod-delete"
+spec:
+  engineState: active
+  annotationCheck: "false"
+
+  appinfo:
+    appns: rate-limiter
+    applabel: app=rate-limiter
+    appkind: deployment
+
+  chaosServiceAccount: litmus-chaos
+  jobCleanUpPolicy: delete
+
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            # Required by chaoslib to find target pods
+            - name: APP_LABEL
+              value: "app=rate-limiter"
+            # Total wall-clock duration of the chaos injection (seconds)
+            - name: TOTAL_CHAOS_DURATION
+              value: "30"
+            # Interval between successive pod deletions (seconds)
+            - name: CHAOS_INTERVAL
+              value: "10"
+            # Graceful delete (false) — lets the pod honour its terminationGracePeriodSeconds
+            - name: FORCE
+              value: "false"
+            # Kill half the matching pods each interval
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            # Delete pods one-by-one rather than all at once
+            - name: SEQUENCE
+              value: "serial"

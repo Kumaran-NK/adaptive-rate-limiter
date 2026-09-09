@@ -1,0 +1,51 @@
+##############################################################################
+# Test 5 — Redis Failure
+# Deletes the Redis pod, simulating a full Redis outage for 30 s.
+# Verifies: Global coordination failure is detected and the configured
+#           fallback/degradation policy activates (local-only mode).
+#
+# NOTE: This targets the Redis deployment (app=redis), NOT the rate-limiter.
+##############################################################################
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: rate-limiter-redis-failure
+  namespace: rate-limiter
+  labels:
+    chaos-test: "05-redis-failure"
+spec:
+  engineState: active
+  annotationCheck: "false"
+
+  appinfo:
+    appns: rate-limiter
+    applabel: app=redis
+    appkind: deployment
+
+  chaosServiceAccount: litmus-chaos
+  jobCleanUpPolicy: delete
+
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            # Required by chaoslib to find target pods in the correct namespace
+            - name: APP_NAMESPACE
+              value: "rate-limiter"
+            - name: APP_LABEL
+              value: "app=redis"
+            # Total wall-clock duration of the chaos injection (seconds)
+            - name: TOTAL_CHAOS_DURATION
+              value: "30"
+            # Interval between successive pod deletions (seconds)
+            - name: CHAOS_INTERVAL
+              value: "10"
+            # Graceful delete
+            - name: FORCE
+              value: "false"
+            # Delete 100% of Redis pods (there is only 1 replica)
+            - name: PODS_AFFECTED_PERC
+              value: "100"
+            - name: SEQUENCE
+              value: "serial"

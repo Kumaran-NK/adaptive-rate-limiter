@@ -1,0 +1,58 @@
+##############################################################################
+# Test 2 — Pod CPU Hog
+# Consumes excessive CPU inside an adaptive-rate-limiter pod for 60 s.
+# Verifies: Rate limiter remains responsive / degrades appropriately
+#           under CPU pressure.
+##############################################################################
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: rate-limiter-pod-cpu-hog
+  namespace: rate-limiter
+  labels:
+    chaos-test: "02-pod-cpu-hog"
+spec:
+  engineState: active
+  annotationCheck: "false"
+
+  appinfo:
+    appns: rate-limiter
+    applabel: app=rate-limiter
+    appkind: deployment
+
+  chaosServiceAccount: litmus-chaos
+  jobCleanUpPolicy: retain
+
+  experiments:
+    - name: pod-cpu-hog
+      spec:
+        components:
+          env:
+            # Total wall-clock duration of the chaos injection (seconds)
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            # Number of CPU cores to stress inside the target container
+            - name: CPU_CORES
+              value: "1"
+            # CPU load percentage to apply per core
+            - name: CPU_LOAD
+              value: "100"
+            # Percentage of matching pods to target
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            # Target the 'app' container specifically
+            - name: TARGET_CONTAINER
+              value: "app"
+            # Inject chaos into pods one at a time
+            - name: SEQUENCE
+              value: "serial"
+            # Container runtime (cluster uses containerd, not docker)
+            - name: CONTAINER_RUNTIME
+              value: "containerd"
+            - name: SOCKET_PATH
+              value: "/run/containerd/containerd.sock"
+            # Required by chaoslib to find target pods in the correct namespace
+            - name: APP_NAMESPACE
+              value: "rate-limiter"
+            - name: APP_LABEL
+              value: "app=rate-limiter"

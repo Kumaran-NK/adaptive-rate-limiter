@@ -1,0 +1,123 @@
+##############################################################################
+# Test 8 — Combined Failure (App Network Loss + Redis Delete)
+#
+# This is a Litmus Chaos Workflow (not a standalone ChaosEngine) that
+# runs TWO faults in parallel:
+#   Step A — Block network on an app pod  (simulates Redis unreachability)
+#   Step B — Delete the Redis pod          (actual Redis outage)
+#
+# Verifies: Overall resilience of the adaptive self-healing architecture
+#           when BOTH the application's network path AND the Redis instance
+#           are disrupted simultaneously.
+#
+# NOTE: For Litmus 3.0 ChaosCenter, this workflow YAML can be uploaded
+#       via the "Upload YAML" option in the experiment creation wizard.
+##############################################################################
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: rate-limiter-combined-failure
+  namespace: rate-limiter
+  labels:
+    chaos-test: "08-combined-failure"
+spec:
+  entrypoint: combined-chaos
+  serviceAccountName: litmus-chaos
+
+  templates:
+    # ── Orchestrator ────────────────────────────────────────────────────
+    - name: combined-chaos
+      steps:
+        # Both faults fire at the same time
+        - - name: app-network-loss
+            template: app-network-loss-fault
+          - name: redis-pod-delete
+            template: redis-pod-delete-fault
+
+    # ── Fault A: Network loss on the rate-limiter app pod ───────────────
+    - name: app-network-loss-fault
+      inputs:
+        artifacts:
+          - name: app-network-loss-fault
+            path: /tmp/chaosengine-app-network-loss.yaml
+            raw:
+              data: |
+                apiVersion: litmuschaos.io/v1alpha1
+                kind: ChaosEngine
+                metadata:
+                  name: combined-app-network-loss
+                  namespace: rate-limiter
+                spec:
+                  engineState: active
+                  annotationCheck: "false"
+                  appinfo:
+                    appns: rate-limiter
+                    applabel: app=rate-limiter
+                    appkind: deployment
+                  chaosServiceAccount: litmus-chaos
+                  jobCleanUpPolicy: delete
+                  experiments:
+                    - name: pod-network-loss
+                      spec:
+                        components:
+                          env:
+                            - name: TOTAL_CHAOS_DURATION
+                              value: "60"
+                            - name: NETWORK_INTERFACE
+                              value: "eth0"
+                            - name: NETWORK_PACKET_LOSS_PERCENTAGE
+                              value: "100"
+                            - name: TARGET_CONTAINER
+                              value: "app"
+                            - name: PODS_AFFECTED_PERC
+                              value: "100"
+                            - name: SEQUENCE
+                              value: "serial"
+      container:
+        image: litmuschaos/litmus-checker:latest
+        args:
+          - -file=/tmp/chaosengine-app-network-loss.yaml
+          - -saveName=/tmp/engine-name
+
+    # ── Fault B: Delete the Redis pod ───────────────────────────────────
+    - name: redis-pod-delete-fault
+      inputs:
+        artifacts:
+          - name: redis-pod-delete-fault
+            path: /tmp/chaosengine-redis-delete.yaml
+            raw:
+              data: |
+                apiVersion: litmuschaos.io/v1alpha1
+                kind: ChaosEngine
+                metadata:
+                  name: combined-redis-delete
+                  namespace: rate-limiter
+                spec:
+                  engineState: active
+                  annotationCheck: "false"
+                  appinfo:
+                    appns: rate-limiter
+                    applabel: app=redis
+                    appkind: deployment
+                  chaosServiceAccount: litmus-chaos
+                  jobCleanUpPolicy: delete
+                  experiments:
+                    - name: pod-delete
+                      spec:
+                        components:
+                          env:
+                            - name: TOTAL_CHAOS_DURATION
+                              value: "60"
+                            - name: CHAOS_INTERVAL
+                              value: "15"
+                            - name: FORCE
+                              value: "true"
+                            - name: PODS_AFFECTED_PERC
+                              value: "100"
+                            - name: SEQUENCE
+                              value: "serial"
+      container:
+        image: litmuschaos/litmus-checker:latest
+        args:
+          - -file=/tmp/chaosengine-redis-delete.yaml
+          - -saveName=/tmp/engine-name

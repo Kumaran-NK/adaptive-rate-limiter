@@ -1,0 +1,70 @@
+##############################################################################
+# Shared RBAC for LitmusChaos experiments in the rate-limiter namespace.
+# Uses ClusterRole and ClusterRoleBinding so Litmus chaoslib can query
+# pods and nodes at cluster scope.
+##############################################################################
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: litmus-chaos
+  namespace: rate-limiter
+  labels:
+    app.kubernetes.io/part-of: litmus-chaos
+    app.kubernetes.io/component: chaos-runner
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: litmus-chaos
+  labels:
+    app.kubernetes.io/part-of: litmus-chaos
+rules:
+  # Core resources needed by the chaos runner and helper pods
+  - apiGroups: [""]
+    resources:
+      - pods
+      - pods/log
+      - pods/exec
+      - events
+      - services
+      - configmaps
+      - secrets
+      - nodes
+    verbs: ["*"]
+  # Workload resources for app/redis targeting
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - replicasets
+      - statefulsets
+      - daemonsets
+    verbs: ["*"]
+  # Jobs created by the chaos runner
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+    verbs: ["*"]
+  # LitmusChaos custom resources
+  - apiGroups: ["litmuschaos.io"]
+    resources:
+      - chaosengines
+      - chaosexperiments
+      - chaosresults
+      - chaosschedules
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: litmus-chaos-binding
+  labels:
+    app.kubernetes.io/part-of: litmus-chaos
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: litmus-chaos
+subjects:
+  - kind: ServiceAccount
+    name: litmus-chaos
+    namespace: rate-limiter

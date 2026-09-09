@@ -1,0 +1,61 @@
+##############################################################################
+# Test 4 — Pod Network Latency
+# Introduces 2000 ms network delay on an adaptive-rate-limiter pod for 60 s.
+# Verifies: System handles increased Redis/network latency without
+#           uncontrolled failures (timeouts fire, circuit breakers trip).
+##############################################################################
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: rate-limiter-pod-network-latency
+  namespace: rate-limiter
+  labels:
+    chaos-test: "04-pod-network-latency"
+spec:
+  engineState: active
+  annotationCheck: "false"
+
+  appinfo:
+    appns: rate-limiter
+    applabel: app=rate-limiter
+    appkind: deployment
+
+  chaosServiceAccount: litmus-chaos
+  jobCleanUpPolicy: delete
+
+  experiments:
+    - name: pod-network-latency
+      spec:
+        components:
+          env:
+            # Required by chaoslib to find target pods in the correct namespace
+            - name: APP_NAMESPACE
+              value: "rate-limiter"
+            - name: APP_LABEL
+              value: "app=rate-limiter"
+            # Total wall-clock duration of the chaos injection (seconds)
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            # Network interface to apply latency on
+            - name: NETWORK_INTERFACE
+              value: "eth0"
+            # Latency to inject in milliseconds
+            - name: NETWORK_LATENCY
+              value: "2000"
+            # Jitter in milliseconds (adds variability to the latency)
+            - name: JITTER
+              value: "500"
+            # Target the 'app' container specifically
+            - name: TARGET_CONTAINER
+              value: "app"
+            # Percentage of matching pods to target
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            # Inject chaos into pods one at a time
+            - name: SEQUENCE
+              value: "serial"
+            # Container runtime (cluster uses containerd, not docker)
+            - name: CONTAINER_RUNTIME
+              value: "containerd"
+            - name: SOCKET_PATH
+              value: "/run/containerd/containerd.sock"
