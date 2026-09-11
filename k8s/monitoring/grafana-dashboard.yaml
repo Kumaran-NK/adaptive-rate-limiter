@@ -1,0 +1,389 @@
+##############################################################################
+# Grafana Dashboard ConfigMap — Pre-built dashboard for Adaptive Rate Limiter
+# Covers: request throughput, health state, latency, leasing, state transitions
+##############################################################################
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-provider
+  namespace: monitoring
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards
+          foldersFromFilesStructure: false
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-rate-limiter
+  namespace: monitoring
+data:
+  rate-limiter.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "links": [],
+      "panels": [
+        {
+          "title": "🔴 Health State (0=Healthy, 1=Warning, 2=Degraded, 3=Recovery)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "rate_limiter_health_state",
+              "legendFormat": "{{pod}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 2 },
+                  { "color": "orange", "value": 3 }
+                ]
+              },
+              "mappings": [
+                { "type": "value", "options": { "0": { "text": "HEALTHY", "color": "green" } } },
+                { "type": "value", "options": { "1": { "text": "WARNING", "color": "yellow" } } },
+                { "type": "value", "options": { "2": { "text": "DEGRADED", "color": "red" } } },
+                { "type": "value", "options": { "3": { "text": "RECOVERY", "color": "orange" } } }
+              ]
+            }
+          }
+        },
+        {
+          "title": "✅ Requests Allowed (rate/s)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 3, "x": 6, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "sum(rate(rate_limiter_requests_total{decision=\"allowed\"}[1m]))",
+              "legendFormat": "allowed/s"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "fixed", "fixedColor": "green" },
+              "unit": "reqps"
+            }
+          }
+        },
+        {
+          "title": "🚫 Requests Denied (rate/s)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 3, "x": 9, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "sum(rate(rate_limiter_requests_total{decision=\"denied\"}[1m]))",
+              "legendFormat": "denied/s"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "fixed", "fixedColor": "red" },
+              "unit": "reqps"
+            }
+          }
+        },
+        {
+          "title": "🏷️ Active Pods",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 3, "x": 12, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "count(up{app=\"rate-limiter\"} == 1)",
+              "legendFormat": "pods"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "fixed", "fixedColor": "blue" }
+            }
+          }
+        },
+        {
+          "title": "⏱️ Circuit Breaker State",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 3, "x": 15, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "resilience4j_circuitbreaker_state{name=\"redis\"}",
+              "legendFormat": "{{pod}}"
+            }
+          ]
+        },
+        {
+          "title": "📊 Request Throughput (Allowed vs Denied)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "sum(rate(rate_limiter_requests_total{decision=\"allowed\"}[1m]))",
+              "legendFormat": "Allowed/s"
+            },
+            {
+              "expr": "sum(rate(rate_limiter_requests_total{decision=\"denied\"}[1m]))",
+              "legendFormat": "Denied/s"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 20,
+                "gradientMode": "scheme",
+                "lineWidth": 2
+              }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Allowed/s" },
+                "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Denied/s" },
+                "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+              }
+            ]
+          }
+        },
+        {
+          "title": "⏱️ Request Latency Percentiles",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(rate_limiter_request_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "p50"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(rate_limiter_request_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "p95"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(rate_limiter_request_duration_seconds_bucket[5m])) by (le))",
+              "legendFormat": "p99"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 10,
+                "lineWidth": 2
+              }
+            }
+          }
+        },
+        {
+          "title": "🔄 State Transitions",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "sum by (from, to) (rate(rate_limiter_state_transitions_total[5m]))",
+              "legendFormat": "{{from}} → {{to}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "cps",
+              "custom": {
+                "drawStyle": "bars",
+                "fillOpacity": 50,
+                "lineWidth": 1,
+                "stacking": { "mode": "normal" }
+              }
+            }
+          }
+        },
+        {
+          "title": "📈 Health State Over Time",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "rate_limiter_health_state",
+              "legendFormat": "{{pod}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "stepAfter",
+                "fillOpacity": 30,
+                "lineWidth": 2
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 1 },
+                  { "color": "red", "value": 2 },
+                  { "color": "orange", "value": 3 }
+                ]
+              },
+              "max": 3,
+              "min": 0
+            }
+          }
+        },
+        {
+          "title": "🏗️ Quota Leasing — Grants & Starvation",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "sum(rate(rate_limiter_lease_grants_total[1m]))",
+              "legendFormat": "Lease Grants/s"
+            },
+            {
+              "expr": "sum(rate(rate_limiter_lease_starvation_total[1m]))",
+              "legendFormat": "Starvation Events/s"
+            },
+            {
+              "expr": "sum(rate(rate_limiter_lease_redis_calls_saved_total[1m]))",
+              "legendFormat": "Redis Calls Saved/s"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 15,
+                "lineWidth": 2
+              }
+            }
+          }
+        },
+        {
+          "title": "🗑️ Wasted Quota & Lease Size",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "sum(rate(rate_limiter_lease_wasted_quota_total[1m]))",
+              "legendFormat": "Wasted Quota/s"
+            },
+            {
+              "expr": "rate_limiter_lease_size",
+              "legendFormat": "Lease Size ({{pod}})"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 15,
+                "lineWidth": 2
+              }
+            }
+          }
+        },
+        {
+          "title": "💾 JVM Memory Usage",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "sum by (pod) (jvm_memory_used_bytes{area=\"heap\"})",
+              "legendFormat": "Heap Used ({{pod}})"
+            },
+            {
+              "expr": "sum by (pod) (jvm_memory_max_bytes{area=\"heap\"})",
+              "legendFormat": "Heap Max ({{pod}})"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 15,
+                "lineWidth": 2
+              }
+            }
+          }
+        },
+        {
+          "title": "⚡ Resilience4j Circuit Breaker",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "targets": [
+            {
+              "expr": "sum(rate(resilience4j_circuitbreaker_calls_seconds_count{kind=\"successful\"}[1m]))",
+              "legendFormat": "Successful Calls/s"
+            },
+            {
+              "expr": "sum(rate(resilience4j_circuitbreaker_calls_seconds_count{kind=\"failed\"}[1m]))",
+              "legendFormat": "Failed Calls/s"
+            },
+            {
+              "expr": "resilience4j_circuitbreaker_failure_rate{name=\"redis\"}",
+              "legendFormat": "Failure Rate %"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "smooth",
+                "fillOpacity": 15,
+                "lineWidth": 2
+              }
+            }
+          }
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["rate-limiter", "chaos-engineering"],
+      "templating": {
+        "list": [
+          {
+            "name": "DS_PROMETHEUS",
+            "type": "datasource",
+            "query": "prometheus",
+            "current": { "selected": true, "text": "Prometheus", "value": "Prometheus" }
+          }
+        ]
+      },
+      "time": { "from": "now-30m", "to": "now" },
+      "title": "Adaptive Rate Limiter",
+      "uid": "adaptive-rate-limiter"
+    }
